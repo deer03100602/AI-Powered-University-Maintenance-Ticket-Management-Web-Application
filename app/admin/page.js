@@ -1102,7 +1102,8 @@ export default function AdminManagementPage() {
                         </div>
                     </div>
                 </div>
-            {selectedImageModal && (
+                )}
+                {selectedImageModal && (
                 <div 
                     onClick={() => setSelectedImageModal(null)}
                     style={{
