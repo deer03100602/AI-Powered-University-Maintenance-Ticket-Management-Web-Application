@@ -282,16 +282,12 @@ const RoleService = {
 // ── Theme Management ──────────────────────────────────────────
 const ThemeService = {
     getCurrentTheme() {
-        let theme = localStorage.getItem('helpdesk_theme');
-        if (!theme || theme === 'light') {
-            theme = 'dark';
-            localStorage.setItem('helpdesk_theme', 'dark');
-        }
-        return theme;
+        return localStorage.getItem('helpdesk_theme') || 'dark';
     },
     setTheme(theme) {
         localStorage.setItem('helpdesk_theme', theme);
         document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.colorScheme = theme;
     },
     toggleTheme() {
         const current = this.getCurrentTheme();
@@ -301,7 +297,7 @@ const ThemeService = {
     },
     init() {
         const theme = this.getCurrentTheme();
-        document.documentElement.setAttribute('data-theme', theme);
+        this.setTheme(theme);
     }
 };
 

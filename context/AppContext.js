@@ -125,14 +125,10 @@ export function AppProvider({ children }) {
 
     // ── Load and apply theme ────────────────────────────────
     useEffect(() => {
-        let savedTheme = localStorage.getItem('helpdesk_theme');
-        // If unset or stale light, default to dark to match Image 1
-        if (!savedTheme || savedTheme === 'light') {
-            savedTheme = 'dark';
-            localStorage.setItem('helpdesk_theme', 'dark');
-        }
+        const savedTheme = localStorage.getItem('helpdesk_theme') || 'dark';
         setTheme(savedTheme);
         document.documentElement.setAttribute('data-theme', savedTheme);
+        document.documentElement.style.colorScheme = savedTheme;
     }, []);
 
     const toggleTheme = () => {
@@ -140,6 +136,7 @@ export function AppProvider({ children }) {
         setTheme(newTheme);
         localStorage.setItem('helpdesk_theme', newTheme);
         document.documentElement.setAttribute('data-theme', newTheme);
+        document.documentElement.style.colorScheme = newTheme;
     };
 
     // Auth methods

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th" data-theme="dark" style="color-scheme: dark;">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,9 @@
     
     <script>
         try {
-            if (!localStorage.getItem('helpdesk_theme') || localStorage.getItem('helpdesk_theme') === 'light') {
-                localStorage.setItem('helpdesk_theme', 'dark');
-            }
-            document.documentElement.setAttribute('data-theme', 'dark');
+            var theme = localStorage.getItem('helpdesk_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.style.colorScheme = theme;
         } catch(e) {}
     </script>
 

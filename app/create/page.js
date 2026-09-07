@@ -205,11 +205,11 @@ export default function CreateTicketPage() {
         <div style={{ maxWidth: 740, margin: '0 auto', padding: '1.5rem 1rem 3rem 1rem' }} className="fade-in">
             {/* Page Header */}
             <div style={{ marginBottom: '1.5rem' }}>
-                <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0 0 0.4rem 0' }}>
-                    <PlusCircle style={{ width: 26, height: 26, color: '#f8fafc' }} />
+                <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0 0 0.4rem 0' }}>
+                    <PlusCircle style={{ width: 26, height: 26, color: 'var(--text-primary)' }} />
                     แจ้งปัญหาใหม่
                 </h1>
-                <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0 }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
                     กรอกรายละเอียดปัญหาเพื่อสร้าง Ticket ใหม่ในระบบ
                 </p>
             </div>
@@ -218,24 +218,17 @@ export default function CreateTicketPage() {
             <form 
                 onSubmit={handleSubmit}
                 className="ticket-form-card"
-                style={{
-                    backgroundColor: '#111726',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: 16,
-                    padding: '2rem',
-                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.4)'
-                }}
             >
                 {/* Section 1: ข้อมูลปัญหา */}
                 <div style={{ marginBottom: '1.75rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', color: '#f8fafc', fontSize: '1.05rem', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', color: 'var(--text-primary)', fontSize: '1.05rem', fontWeight: 600 }}>
                         <Info style={{ width: 18, height: 18, color: '#818cf8' }} />
                         <span>ข้อมูลปัญหา</span>
                     </div>
 
                     {/* หัวข้อปัญหา */}
                     <div style={{ marginBottom: '1.25rem' }}>
-                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                             หัวข้อปัญหา <span style={{ color: '#ef4444' }}>*</span>
                         </label>
                         <input 
@@ -248,27 +241,24 @@ export default function CreateTicketPage() {
                             onChange={(e) => setTitle(e.target.value)}
                             style={{
                                 width: '100%',
-                                backgroundColor: '#0b0f19',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
                                 borderRadius: 8,
                                 padding: '0.75rem 1rem',
-                                color: '#f8fafc',
                                 fontSize: '0.95rem',
                                 outline: 'none'
                             }}
                         />
-                        <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', marginTop: '0.35rem' }}>
+                        <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
                             อธิบายย่อสรุปสั้นๆ ชัดเจน
                         </span>
                     </div>
 
                     {/* รายละเอียดปัญหา */}
                     <div style={{ marginBottom: '1.25rem' }}>
-                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                             รายละเอียดปัญหา <span style={{ color: '#ef4444' }}>*</span>
                         </label>
                         <textarea 
-                            className="form-input" 
+                            className="form-input form-textarea" 
                             placeholder="อธิบายรายละเอียดปัญหา อาคาร หรือข้อความแสดงข้อผิดพลาด..." 
                             required 
                             rows={4}
@@ -276,11 +266,8 @@ export default function CreateTicketPage() {
                             onChange={(e) => setDescription(e.target.value)}
                             style={{
                                 width: '100%',
-                                backgroundColor: '#0b0f19',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
                                 borderRadius: 8,
                                 padding: '0.75rem 1rem',
-                                color: '#f8fafc',
                                 fontSize: '0.95rem',
                                 outline: 'none',
                                 resize: 'vertical',
@@ -291,33 +278,22 @@ export default function CreateTicketPage() {
 
                     {/* ไฟล์แนบ (ตัวเลือกเสริม) */}
                     <div style={{ marginBottom: '1.25rem' }}>
-                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                             ไฟล์แนบ (ตัวเลือกเสริม)
                         </label>
                         
                         <div 
+                            className="ticket-dropzone"
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
                             onClick={() => fileInputRef.current?.click()}
-                            style={{
-                                border: isDragging ? '1px dashed #6366f1' : '1px dashed rgba(255, 255, 255, 0.18)',
-                                backgroundColor: isDragging ? 'rgba(99, 102, 241, 0.08)' : 'rgba(11, 15, 25, 0.5)',
-                                borderRadius: 12,
-                                padding: '1.25rem 1.5rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '1.25rem',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
                         >
                             {/* Upload icon box */}
-                            <div style={{
+                            <div className="ticket-dropzone-icon" style={{
                                 width: 46,
                                 height: 46,
                                 borderRadius: 10,
-                                backgroundColor: '#1e2238',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -328,14 +304,14 @@ export default function CreateTicketPage() {
 
                             {/* Dropzone text and badge chips */}
                             <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.9rem', color: '#e2e8f0', marginBottom: '0.45rem' }}>
+                                <div className="ticket-dropzone-text" style={{ fontSize: '0.9rem', marginBottom: '0.45rem' }}>
                                     ลากและวางไฟล์ที่นี่ หรือ <span style={{ color: '#818cf8', fontWeight: 600, textDecoration: 'underline' }}>คลิกเพื่อเลือก</span>
                                 </div>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255, 255, 255, 0.06)', color: '#94a3b8', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 9999, padding: '2px 9px' }}>รูปภาพ</span>
-                                    <span style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255, 255, 255, 0.06)', color: '#94a3b8', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 9999, padding: '2px 9px' }}>PDF</span>
-                                    <span style={{ fontSize: '0.72rem', backgroundColor: 'rgba(255, 255, 255, 0.06)', color: '#94a3b8', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: 9999, padding: '2px 9px' }}>เอกสาร</span>
-                                    <span style={{ fontSize: '0.72rem', backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: 9999, padding: '2px 9px', fontWeight: 500 }}>สูงสุด 10MB</span>
+                                    <span className="ticket-badge-pill" style={{ fontSize: '0.72rem', borderRadius: 9999, padding: '2px 9px' }}>รูปภาพ</span>
+                                    <span className="ticket-badge-pill" style={{ fontSize: '0.72rem', borderRadius: 9999, padding: '2px 9px' }}>PDF</span>
+                                    <span className="ticket-badge-pill" style={{ fontSize: '0.72rem', borderRadius: 9999, padding: '2px 9px' }}>เอกสาร</span>
+                                    <span style={{ fontSize: '0.72rem', backgroundColor: 'rgba(245, 158, 11, 0.12)', color: '#d97706', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: 9999, padding: '2px 9px', fontWeight: 600 }}>สูงสุด 10MB</span>
                                 </div>
                             </div>
 
@@ -363,16 +339,14 @@ export default function CreateTicketPage() {
                                 {attachments.map((att, idx) => (
                                     <div 
                                         key={idx} 
+                                        className="ticket-attachment-chip"
                                         style={{
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: '0.4rem',
-                                            backgroundColor: '#1a2234',
-                                            border: '1px solid rgba(255, 255, 255, 0.1)',
                                             borderRadius: 8,
                                             padding: '4px 10px',
-                                            fontSize: '0.8rem',
-                                            color: '#cbd5e1'
+                                            fontSize: '0.8rem'
                                         }}
                                     >
                                         <FileText style={{ width: 14, height: 14, color: '#818cf8' }} />
@@ -395,7 +369,7 @@ export default function CreateTicketPage() {
                     {/* Two Column: ประเภทปัญหา & ระดับความเร่งด่วน */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
                         <div>
-                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                                 ประเภทปัญหา <span style={{ color: '#ef4444' }}>*</span>
                             </label>
                             <select 
@@ -405,11 +379,8 @@ export default function CreateTicketPage() {
                                 onChange={(e) => setIssueType(e.target.value)}
                                 style={{
                                     width: '100%',
-                                    backgroundColor: '#0b0f19',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
                                     borderRadius: 8,
                                     padding: '0.75rem 1rem',
-                                    color: issueType ? '#f8fafc' : '#94a3b8',
                                     fontSize: '0.95rem',
                                     outline: 'none'
                                 }}
@@ -422,7 +393,7 @@ export default function CreateTicketPage() {
                         </div>
 
                         <div>
-                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                                 ระดับความเร่งด่วน <span style={{ color: '#ef4444' }}>*</span>
                             </label>
                             <select 
@@ -432,11 +403,8 @@ export default function CreateTicketPage() {
                                 onChange={(e) => setPriority(e.target.value)}
                                 style={{
                                     width: '100%',
-                                    backgroundColor: '#0b0f19',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
                                     borderRadius: 8,
                                     padding: '0.75rem 1rem',
-                                    color: '#f8fafc',
                                     fontSize: '0.95rem',
                                     outline: 'none'
                                 }}
@@ -451,7 +419,7 @@ export default function CreateTicketPage() {
 
                     {/* สถานที่เกิดเหตุ */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                             สถานที่เกิดเหตุ <span style={{ color: '#ef4444' }}>*</span>
                         </label>
                         <input 
@@ -463,11 +431,8 @@ export default function CreateTicketPage() {
                             onChange={(e) => setLocation(e.target.value)}
                             style={{
                                 width: '100%',
-                                backgroundColor: '#0b0f19',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
                                 borderRadius: 8,
                                 padding: '0.75rem 1rem',
-                                color: '#f8fafc',
                                 fontSize: '0.95rem',
                                 outline: 'none'
                             }}
@@ -477,7 +442,7 @@ export default function CreateTicketPage() {
 
                 {/* Section 2: ข้อมูลผู้แจ้ง */}
                 <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', color: '#f8fafc', fontSize: '1.05rem', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', color: 'var(--text-primary)', fontSize: '1.05rem', fontWeight: 600 }}>
                         <User style={{ width: 18, height: 18, color: '#818cf8' }} />
                         <span>ข้อมูลผู้แจ้ง</span>
                     </div>
@@ -485,7 +450,7 @@ export default function CreateTicketPage() {
                     {/* Two Column: ชื่อผู้แจ้ง & อีเมลติดต่อ */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
                         <div>
-                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                                 ชื่อผู้แจ้ง <span style={{ color: '#ef4444' }}>*</span>
                             </label>
                             <input 
@@ -497,11 +462,8 @@ export default function CreateTicketPage() {
                                 onChange={(e) => setRequesterName(e.target.value)}
                                 style={{
                                     width: '100%',
-                                    backgroundColor: '#0b0f19',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
                                     borderRadius: 8,
                                     padding: '0.75rem 1rem',
-                                    color: '#f8fafc',
                                     fontSize: '0.95rem',
                                     outline: 'none'
                                 }}
@@ -509,7 +471,7 @@ export default function CreateTicketPage() {
                         </div>
 
                         <div>
-                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                                 อีเมลติดต่อ
                             </label>
                             <input 
@@ -520,11 +482,8 @@ export default function CreateTicketPage() {
                                 onChange={(e) => setRequesterEmail(e.target.value)}
                                 style={{
                                     width: '100%',
-                                    backgroundColor: '#0b0f19',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
                                     borderRadius: 8,
                                     padding: '0.75rem 1rem',
-                                    color: '#f8fafc',
                                     fontSize: '0.95rem',
                                     outline: 'none'
                                 }}
@@ -534,7 +493,7 @@ export default function CreateTicketPage() {
 
                     {/* กลุ่มผู้ใช้งาน */}
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
                             กลุ่มผู้ใช้งาน <span style={{ color: '#ef4444' }}>*</span>
                         </label>
                         <select 
@@ -544,11 +503,8 @@ export default function CreateTicketPage() {
                             onChange={(e) => setRequesterGroup(e.target.value)}
                             style={{
                                 width: '100%',
-                                backgroundColor: '#0b0f19',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
                                 borderRadius: 8,
                                 padding: '0.75rem 1rem',
-                                color: '#f8fafc',
                                 fontSize: '0.95rem',
                                 outline: 'none'
                             }}
@@ -568,10 +524,8 @@ export default function CreateTicketPage() {
                         type="button" 
                         onClick={() => router.push('/')}
                         disabled={submitting}
+                        className="ticket-btn-cancel"
                         style={{
-                            backgroundColor: '#1a2234',
-                            border: '1px solid rgba(255, 255, 255, 0.12)',
-                            color: '#e2e8f0',
                             borderRadius: 8,
                             padding: '0.65rem 1.5rem',
                             fontSize: '0.95rem',
@@ -579,8 +533,6 @@ export default function CreateTicketPage() {
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#243048'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1a2234'}
                     >
                         ยกเลิก
                     </button>
@@ -610,6 +562,7 @@ export default function CreateTicketPage() {
                         {submitting ? 'กำลังส่งข้อมูล...' : 'ส่งแจ้งปัญหา'}
                     </button>
                 </div>
+
             </form>
         </div>
     );
