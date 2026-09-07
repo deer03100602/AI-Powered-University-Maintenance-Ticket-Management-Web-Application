@@ -56,12 +56,12 @@ export default function Navbar() {
                 <div className="top-navbar-container">
                     {/* Brand / Logo */}
                     <Link href="/" className="top-navbar-logo" onClick={() => setSidebarOpen(false)}>
-                        <div className="logo-icon">
-                            <img src="/front-desk_17210386.png" alt="University Maintenance" style={{ width: 26, height: 26 }} />
+                        <div className="logo-icon" style={{ background: 'transparent', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src="/ksu-logo-icon.png" alt="KSU Smart Maintain" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                         <div className="logo-text">
-                            <h1 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, lineHeight: 1.15 }}>University Maintenance</h1>
-                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>AI-Powered Ticket Management App</span>
+                            <h1 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, lineHeight: 1.15 }}>KSU SMART MAINTAIN</h1>
+                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>ระบบแจ้งซ่อมสิ่งพาณิชย์และอุปกรณ์อัจฉริยะ ม.กาฬสินธุ์</span>
                         </div>
                     </Link>
 
@@ -185,12 +185,12 @@ export default function Navbar() {
             <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
                 <div className="sidebar-header">
                     <div className="sidebar-logo">
-                        <div className="logo-icon">
-                            <img src="/front-desk_17210386.png" alt="University Maintenance" style={{ width: 26, height: 26 }} />
+                        <div className="logo-icon" style={{ background: 'transparent', width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src="/ksu-logo-icon.png" alt="KSU Smart Maintain" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                         <div className="logo-text">
-                            <h1 style={{ fontSize: '1.05rem' }}>University Maintenance</h1>
-                            <span>AI-Powered Ticket Management App</span>
+                            <h1 style={{ fontSize: '1.05rem' }}>KSU SMART MAINTAIN</h1>
+                            <span>ระบบแจ้งซ่อมสิ่งพาณิชย์และอุปกรณ์อัจฉริยะ</span>
                         </div>
                     </div>
                     <button className="sidebar-close-btn" onClick={toggleSidebar}>

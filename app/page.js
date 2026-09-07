@@ -45,8 +45,8 @@ export default function HomePage() {
             <section className="hero-section">
                 <div className="hero-content">
                     <div className="hero-badge">
-                        <img src="/front-desk_17210386.png" alt="University Maintenance" style={{ width: 18, height: 18 }} />
-                        AI-Powered University Maintenance & Ticket Management Web Application
+                        <img src="/ksu-logo-icon.png" alt="KSU Smart Maintain" style={{ width: 20, height: 20, objectFit: 'contain' }} />
+                        KSU SMART MAINTAIN — มหาวิทยาลัยกาฬสินธุ์
                     </div>
                     <h1 className="hero-title">
                         ระบบแจ้งปัญหาซ่อมบำรุง<br />

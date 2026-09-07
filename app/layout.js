@@ -8,13 +8,16 @@ import { AppProvider } from '@/context/AppContext';
 import Navbar from '@/components/Navbar';
 
 export const metadata = {
-  title: 'AI-Powered University Maintenance & Ticket Management Web Application',
-  description: 'ระบบแจ้งปัญหาและติดตามสถานะการซ่อมบำรุงภายในมหาวิทยาลัยด้วย AI',
+  title: 'KSU SMART MAINTAIN | ระบบแจ้งซ่อมสิ่งพาณิชย์และอุปกรณ์อัจฉริยะ มหาวิทยาลัยกาฬสินธุ์',
+  description: 'ระบบแจ้งปัญหาและติดตามสถานะการซ่อมบำรุงสิ่งพาณิชย์และอุปกรณ์อัจฉริยะ มหาวิทยาลัยกาฬสินธุ์ ด้วย AI',
+  icons: {
+    icon: '/ksu-logo-icon.png',
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="th">
+    <html lang="th" data-theme="dark">
       <body>
         <AppProvider>
           <div className="app-container">
