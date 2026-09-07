@@ -282,7 +282,12 @@ const RoleService = {
 // ── Theme Management ──────────────────────────────────────────
 const ThemeService = {
     getCurrentTheme() {
-        return localStorage.getItem('helpdesk_theme') || 'dark';
+        let theme = localStorage.getItem('helpdesk_theme');
+        if (!theme || theme === 'light') {
+            theme = 'dark';
+            localStorage.setItem('helpdesk_theme', 'dark');
+        }
+        return theme;
     },
     setTheme(theme) {
         localStorage.setItem('helpdesk_theme', theme);

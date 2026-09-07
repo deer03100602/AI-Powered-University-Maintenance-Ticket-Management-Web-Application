@@ -29,7 +29,7 @@ function renderCreateTicketPage() {
                     <div class="form-group">
                         <label for="ticket-title" class="form-label">หัวข้อปัญหา <span class="required">*</span></label>
                         <input type="text" id="ticket-title" class="form-input" placeholder="เช่น คอมพิวเตอร์ห้อง Lab 301 เปิดไม่ติด" required maxlength="200">
-                        <span class="form-hint">อธิบายปัญหาสั้นๆ ชัดเจน</span>
+                        <span class="form-hint">อธิบายย่อสรุปสั้นๆ ชัดเจน</span>
                     </div>
 
                     <div class="form-group">
