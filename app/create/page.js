@@ -217,6 +217,7 @@ export default function CreateTicketPage() {
             {/* Form Card */}
             <form 
                 onSubmit={handleSubmit}
+                className="ticket-form-card"
                 style={{
                     backgroundColor: '#111726',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -257,7 +258,7 @@ export default function CreateTicketPage() {
                             }}
                         />
                         <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', marginTop: '0.35rem' }}>
-                            อธิบายปัญหาสั้นๆ ชัดเจน
+                            อธิบายย่อสรุปสั้นๆ ชัดเจน
                         </span>
                     </div>
 

@@ -2675,3 +2675,60 @@ a:hover {
         width: 100%;
     }
 }
+
+/* ── Enforce Dark Theme on Create Ticket Form (matches Image 1) ── */
+.ticket-form-card,
+[data-theme="light"] .ticket-form-card {
+    background-color: #111726 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ticket-form-card .form-input,
+.ticket-form-card .form-select,
+.ticket-form-card .form-textarea,
+.ticket-form-card input,
+.ticket-form-card textarea,
+.ticket-form-card select,
+[data-theme="light"] .ticket-form-card .form-input,
+[data-theme="light"] .ticket-form-card .form-select,
+[data-theme="light"] .ticket-form-card .form-textarea,
+[data-theme="light"] .ticket-form-card input,
+[data-theme="light"] .ticket-form-card textarea,
+[data-theme="light"] .ticket-form-card select {
+    background-color: #0b0f19 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+    box-shadow: none !important;
+}
+
+.ticket-form-card .form-input:focus,
+.ticket-form-card .form-select:focus,
+.ticket-form-card .form-textarea:focus,
+.ticket-form-card input:focus,
+.ticket-form-card textarea:focus,
+.ticket-form-card select:focus,
+[data-theme="light"] .ticket-form-card .form-input:focus,
+[data-theme="light"] .ticket-form-card .form-select:focus,
+[data-theme="light"] .ticket-form-card .form-textarea:focus,
+[data-theme="light"] .ticket-form-card input:focus,
+[data-theme="light"] .ticket-form-card textarea:focus,
+[data-theme="light"] .ticket-form-card select:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+.ticket-form-card .form-input::placeholder,
+.ticket-form-card textarea::placeholder,
+[data-theme="light"] .ticket-form-card .form-input::placeholder,
+[data-theme="light"] .ticket-form-card textarea::placeholder {
+    color: #4b5563 !important;
+}
+
+.ticket-form-card .form-select option,
+[data-theme="light"] .ticket-form-card .form-select option {
+    background-color: #111726 !important;
+    color: #f8fafc !important;
+}
+

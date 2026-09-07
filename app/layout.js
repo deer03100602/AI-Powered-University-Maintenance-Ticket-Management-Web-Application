@@ -17,8 +17,15 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="th" data-theme="dark">
-      <body>
+    <html lang="th" data-theme="dark" style={{ colorScheme: 'dark' }}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('helpdesk_theme')==='light'){localStorage.setItem('helpdesk_theme','dark');}document.documentElement.setAttribute('data-theme','dark');}catch(e){}`,
+          }}
+        />
+      </head>
+      <body style={{ backgroundColor: '#0b0f19', color: '#f3f4f6' }}>
         <AppProvider>
           <div className="app-container">
             {/* Sidebar drawer and Mobile Navigation */}
