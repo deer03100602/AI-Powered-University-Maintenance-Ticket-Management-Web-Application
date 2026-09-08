@@ -38,7 +38,7 @@ function renderNavbar() {
                     </div>
                     <div class="logo-text">
                         <h1 style="font-size: 1.05rem; font-weight: 700; margin: 0; line-height: 1.15; color: var(--text-primary);">University Maintenance</h1>
-                        <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">AI-Powered Ticket Management App</span>
+                        <span class="logo-subtitle" style="font-size: 0.72rem; color: var(--text-muted); display: block;">AI-Powered Ticket Management App</span>
                     </div>
                 </a>
 

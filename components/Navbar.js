@@ -61,7 +61,7 @@ export default function Navbar() {
                         </div>
                         <div className="logo-text">
                             <h1 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, lineHeight: 1.15 }}>KSU SMART MAINTAIN</h1>
-                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>ระบบแจ้งซ่อมสิ่งพาณิชย์และอุปกรณ์อัจฉริยะ ม.กาฬสินธุ์</span>
+                            <span className="logo-subtitle" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>ระบบแจ้งซ่อมสิ่งพาณิชย์และอุปกรณ์อัจฉริยะ ม.กาฬสินธุ์</span>
                         </div>
                     </Link>
 
@@ -86,18 +86,18 @@ export default function Navbar() {
                             className="theme-toggle-btn"
                             onClick={toggleTheme}
                             title={theme === 'dark' ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด'}
-                            style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                            style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}
                         >
                             {theme === 'dark' ? <Sun style={{ width: 17, height: 17 }} /> : <Moon style={{ width: 17, height: 17 }} />}
                         </button>
 
                         {/* Role Switcher */}
                         {isRealAuth ? (
-                            <div className="user-role-badge" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                            <div className="user-role-badge" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', flexShrink: 0 }}>
                                 ใช้บัญชีจริง
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <div className="top-role-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>กลุ่ม:</span>
                                 <select
                                     className="top-role-select"
@@ -127,7 +127,7 @@ export default function Navbar() {
                                     <UserCircle style={{ width: 16, height: 16 }} />
                                 )}
                             </div>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', maxWidth: 95, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {user?.name || (isAdmin ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน')}
                             </span>
                             <span className={`user-role-badge ${isAdmin ? 'admin-badge' : 'user-badge'}`} style={{ fontSize: '0.68rem', padding: '1px 6px' }}>
@@ -141,7 +141,7 @@ export default function Navbar() {
                                 onClick={signOutUser}
                                 className="btn btn-ghost btn-sm"
                                 title="ออกจากระบบ"
-                                style={{ padding: '0.4rem 0.7rem', fontSize: '0.8rem', color: '#f87171', display: 'flex', alignItems: 'center', gap: 4 }}
+                                style={{ padding: '0.4rem 0.7rem', fontSize: '0.8rem', color: '#f87171', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}
                             >
                                 <LogOut style={{ width: 15, height: 15 }} />
                                 <span>ออก</span>
@@ -150,7 +150,7 @@ export default function Navbar() {
                             <Link
                                 href="/login"
                                 className="btn btn-primary btn-sm"
-                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none', flexShrink: 0, whiteSpace: 'nowrap' }}
                             >
                                 <LogIn style={{ width: 15, height: 15 }} />
                                 <span>เข้าสู่ระบบ</span>
