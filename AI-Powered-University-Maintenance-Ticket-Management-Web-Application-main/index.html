@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบแจ้งซ่อมแซมภายในมหาวิทยาลัย | University Maintenance System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts (Sarabun & Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                        <i data-lucide="wrench" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg block leading-none">UniFix</span>
+                        <span class="text-xs text-indigo-200">ระบบแจ้งซ่อมแซมมหาวิทยาลัย</span>
+                    </div>
+                </div>
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex space-x-4">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 py-2 rounded-md text-sm font-medium bg-indigo-800 text-white flex items-center gap-1">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> แผงควบคุม
+                    </button>
+                    <button onclick="switchTab('report')" id="nav-report" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-800 text-indigo-100 hover:text-white flex items-center gap-1">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> แจ้งซ่อมใหม่
+                    </button>
+                    <button onclick="switchTab('track')" id="nav-track" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-800 text-indigo-100 hover:text-white flex items-center gap-1">
+                        <i data-lucide="search" class="w-4 h-4"></i> ติดตามสถานะ
+                    </button>
+                    <button onclick="switchTab('admin')" id="nav-admin" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-800 text-indigo-100 hover:text-white flex items-center gap-1 border border-indigo-700">
+                        <i data-lucide="user-cog" class="w-4 h-4"></i> สำหรับเจ้าหน้าที่
+                    </button>
+                </div>
+                <!-- User Profile/Role Indicator -->
+                <div class="flex items-center gap-2">
+                    <span id="role-badge" class="bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                        โหมดจำลอง: นิสิต/บุคลากร
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav Bar (Bottom Navigation for better UX) -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 bg-indigo-900 border-t border-indigo-800 flex justify-around py-2 z-50 shadow-lg">
+            <button onclick="switchTab('dashboard')" id="mob-dashboard" class="flex flex-col items-center text-xs text-white">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="mt-1">แผงควบคุม</span>
+            </button>
+            <button onclick="switchTab('report')" id="mob-report" class="flex flex-col items-center text-xs text-indigo-300">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                <span class="mt-1">แจ้งซ่อม</span>
+            </button>
+            <button onclick="switchTab('track')" id="mob-track" class="flex flex-col items-center text-xs text-indigo-300">
+                <i data-lucide="search" class="w-5 h-5"></i>
+                <span class="mt-1">ติดตาม</span>
+            </button>
+            <button onclick="switchTab('admin')" id="mob-admin" class="flex flex-col items-center text-xs text-indigo-300">
+                <i data-lucide="user-cog" class="w-5 h-5"></i>
+                <span class="mt-1">เจ้าหน้าที่</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-16 md:mb-0">
+        
+        <!-- ALERT SYSTEM (Custom notification instead of browser alert) -->
+        <div id="toast" class="hidden fixed top-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700 transition-all duration-300 transform translate-y-[-20px] opacity-0">
+            <div id="toast-icon" class="text-emerald-400">
+                <i data-lucide="check-circle" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p id="toast-title" class="font-bold text-sm">สำเร็จ!</p>
+                <p id="toast-message" class="text-xs text-slate-300">ดำเนินการเรียบร้อยแล้ว</p>
+            </div>
+        </div>
+
+        <!-- ==================== PAGE 1: DASHBOARD ==================== -->
+        <section id="page-dashboard" class="space-y-6">
+            <!-- Header Welcome -->
+            <div class="bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-white">
+                    <i data-lucide="wrench" class="w-64 h-64"></i>
+                </div>
+                <div class="relative z-10 space-y-2">
+                    <h1 class="text-2xl md:text-3xl font-extrabold">ยินดีต้อนรับสู่ระบบ UniFix</h1>
+                    <p class="text-indigo-100 text-sm md:text-base max-w-xl">
+                        พบปัญหาระบบไฟฟ้า ประปา แอร์ หรือโครงสร้างชำรุดในวิทยาเขต? แจ้งให้เราทราบทันทีเพื่อการซ่อมบำรุงที่รวดเร็วและเป็นระบบ
+                    </p>
+                    <div class="pt-4 flex flex-wrap gap-3">
+                        <button onclick="switchTab('report')" class="bg-white text-indigo-950 hover:bg-indigo-50 px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition flex items-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4 text-indigo-600"></i> แจ้งซ่อมแซมตอนนี้
+                        </button>
+                        <button onclick="switchTab('track')" class="bg-indigo-700/50 hover:bg-indigo-700 text-white border border-indigo-500/30 px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+                            <i data-lucide="clock" class="w-4 h-4"></i> ตรวจสอบสถานะงานซ่อม
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                    <div class="p-3 bg-amber-50 text-amber-500 rounded-xl">
+                        <i data-lucide="clock" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">รอดำเนินการ</p>
+                        <p id="stat-pending" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                    <div class="p-3 bg-indigo-50 text-indigo-500 rounded-xl">
+                        <i data-lucide="play" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">กำลังดำเนินการ</p>
+                        <p id="stat-inprogress" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-50 text-emerald-500 rounded-xl">
+                        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">เสร็จสิ้น</p>
+                        <p id="stat-completed" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                    <div class="p-3 bg-rose-50 text-rose-500 rounded-xl">
+                        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">งานเร่งด่วน</p>
+                        <p id="stat-urgent" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories and Map Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Categories Breakdown -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                    <h3 class="font-bold text-lg text-slate-900">แยกตามประเภทการชำรุด</h3>
+                    <div class="space-y-3" id="category-bars">
+                        <!-- Dynamic content here -->
+                    </div>
+                </div>
+
+                <!-- Campus Map (Automatically plotted based on selected buildings) -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">แผนผังจุดแจ้งซ่อมล่าสุด</h3>
+                            <p class="text-xs text-slate-500">แสดงพิกัดอัตโนมัติตามสถานที่ๆ ได้รับแจ้ง (คลิกเลือกอาคารเพื่อกรองงานได้)</p>
+                        </div>
+                        <span class="text-xs bg-slate-100 px-2.5 py-1 rounded-md text-slate-600 font-medium">วิทยาเขตหลัก</span>
+                    </div>
+                    
+                    <!-- Beautiful Vector Interactive Map Container -->
+                    <div class="relative bg-slate-50 rounded-2xl h-80 border border-slate-200 overflow-hidden shadow-inner flex items-center justify-center">
+                        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Grass/Ground Base -->
+                            <rect width="800" height="400" fill="#f1f5f9"/>
+                            
+                            <!-- Forest/Green spaces -->
+                            <path d="M 0,0 L 250,0 L 200,100 L 0,80 Z" fill="#ecfdf5" opacity="0.9"/>
+                            <path d="M 500,0 L 800,0 L 800,120 L 600,100 Z" fill="#ecfdf5" opacity="0.9"/>
+                            <path d="M 0,280 L 150,300 L 120,400 L 0,400 Z" fill="#ecfdf5" opacity="0.9"/>
+                            <path d="M 650,300 L 800,280 L 800,400 L 600,400 Z" fill="#ecfdf5" opacity="0.9"/>
+
+                            <!-- Blue Lake -->
+                            <path d="M 280,240 C 310,190 420,200 450,250 C 480,300 380,340 310,320 C 270,300 250,270 280,240 Z" fill="#e0f2fe" stroke="#bae6fd" stroke-width="3"/>
+                            <text x="365" y="275" fill="#0369a1" font-size="11" font-weight="bold" font-family="Sarabun">อ่างเก็บน้ำกลาง ม.</text>
+
+                            <!-- Campus Main Ring Road -->
+                            <path d="M 100,80 L 700,80 L 700,320 L 100,320 Z" fill="none" stroke="#cbd5e1" stroke-width="20" stroke-linejoin="round"/>
+                            <path d="M 100,80 L 700,80 L 700,320 L 100,320 Z" fill="none" stroke="#94a3b8" stroke-width="16" stroke-linejoin="round"/>
+                            <path d="M 100,80 L 700,80 L 700,320 L 100,320 Z" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="6,6" stroke-linejoin="round"/>
+
+                            <!-- Connecting Roads -->
+                            <line x1="400" y1="80" x2="400" y2="320" stroke="#94a3b8" stroke-width="12" stroke-dasharray="4,4"/>
+
+                            <!-- Building 1: คณะวิศวกรรมศาสตร์ -->
+                            <g class="transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="viewInTrackerByBuilding('คณะวิศวกรรมศาสตร์')">
+                                <rect x="90" y="30" width="110" height="40" rx="8" fill="#818cf8" stroke="#4f46e5" stroke-width="1.5" filter="drop-shadow(2px 4px 6px rgba(0,0,0,0.08))"/>
+                                <text x="145" y="55" fill="#ffffff" font-size="10" font-weight="bold" font-family="Sarabun" text-anchor="middle">วิศวกรรมศาสตร์</text>
+                            </g>
+
+                            <!-- Building 2: คณะวิทยาศาสตร์ -->
+                            <g class="transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="viewInTrackerByBuilding('คณะวิทยาศาสตร์')">
+                                <rect x="550" y="40" width="110" height="40" rx="8" fill="#fb7185" stroke="#e11d48" stroke-width="1.5" filter="drop-shadow(2px 4px 6px rgba(0,0,0,0.08))"/>
+                                <text x="605" y="65" fill="#ffffff" font-size="10" font-weight="bold" font-family="Sarabun" text-anchor="middle">วิทยาศาสตร์ & เทคโนฯ</text>
+                            </g>
+
+                            <!-- Building 3: หอสมุดกลาง -->
+                            <g class="transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="viewInTrackerByBuilding('หอสมุดกลาง')">
+                                <rect x="230" y="140" width="100" height="40" rx="8" fill="#38bdf8" stroke="#0284c7" stroke-width="1.5" filter="drop-shadow(2px 4px 6px rgba(0,0,0,0.08))"/>
+                                <text x="280" y="165" fill="#ffffff" font-size="10" font-weight="bold" font-family="Sarabun" text-anchor="middle">หอสมุดกลาง</text>
+                            </g>
+
+                            <!-- Building 4: อาคารเรียนรวม 1 -->
+                            <g class="transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="viewInTrackerByBuilding('อาคารเรียนรวม 1')">
+                                <rect x="390" y="110" width="100" height="40" rx="8" fill="#c084fc" stroke="#9333ea" stroke-width="1.5" filter="drop-shadow(2px 4px 6px rgba(0,0,0,0.08))"/>
+                                <text x="440" y="135" fill="#ffffff" font-size="10" font-weight="bold" font-family="Sarabun" text-anchor="middle">อาคารเรียนรวม 1</text>
+                            </g>
+
+                            <!-- Building 5: อาคารยิมเนเซียม -->
+                            <g class="transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="viewInTrackerByBuilding('อาคารยิมเนเซียม')">
+                                <rect x="110" y="300" width="100" height="40" rx="8" fill="#34d399" stroke="#059669" stroke-width="1.5" filter="drop-shadow(2px 4px 6px rgba(0,0,0,0.08))"/>
+                                <text x="160" y="325" fill="#ffffff" font-size="10" font-weight="bold" font-family="Sarabun" text-anchor="middle">ยิมเนเซียม</text>
+                            </g>
+
+                            <!-- Building 6: หอพักชาย 2 -->
+                            <g class="transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="viewInTrackerByBuilding('หอพักชาย 2')">
+                                <rect x="610" y="280" width="90" height="40" rx="8" fill="#60a5fa" stroke="#2563eb" stroke-width="1.5" filter="drop-shadow(2px 4px 6px rgba(0,0,0,0.08))"/>
+                                <text x="655" y="305" fill="#ffffff" font-size="10" font-weight="bold" font-family="Sarabun" text-anchor="middle">หอพักชาย 2</text>
+                            </g>
+
+                            <!-- Building 7: หอพักหญิง 4 -->
+                            <g class="transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="viewInTrackerByBuilding('หอพักหญิง 4')">
+                                <rect x="630" y="220" width="90" height="40" rx="8" fill="#f472b6" stroke="#db2777" stroke-width="1.5" filter="drop-shadow(2px 4px 6px rgba(0,0,0,0.08))"/>
+                                <text x="675" y="245" fill="#ffffff" font-size="10" font-weight="bold" font-family="Sarabun" text-anchor="middle">หอพักหญิง 4</text>
+                            </g>
+
+                            <!-- Building 8: โรงอาหารกลาง -->
+                            <g class="transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="viewInTrackerByBuilding('โรงอาหารกลาง')">
+                                <rect x="350" y="320" width="100" height="40" rx="8" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" filter="drop-shadow(2px 4px 6px rgba(0,0,0,0.08))"/>
+                                <text x="400" y="345" fill="#ffffff" font-size="10" font-weight="bold" font-family="Sarabun" text-anchor="middle">โรงอาหารกลาง</text>
+                            </g>
+                        </svg>
+
+                        <!-- Dynamic Markers representing real maintenance spots -->
+                        <div id="map-markers" class="absolute inset-0 pointer-events-none">
+                            <!-- Dynamic markers are injected here with pointer-events-auto -->
+                        </div>
+
+                        <span class="absolute bottom-2 right-2 bg-slate-900/80 text-white text-[10px] px-2.5 py-1 rounded-lg backdrop-blur-sm shadow font-semibold">แผนผังจำลองวิทยาเขต (Interactive SVG Map)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Requests Feed -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-slate-900">รายการแจ้งซ่อมสาธารณะล่าสุด</h3>
+                    <button onclick="switchTab('track')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold flex items-center gap-1">
+                        ดูทั้งหมด <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-100">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">รหัสงาน</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">อุปกรณ์/ปัญหา</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">หมวดหมู่</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">สถานที่</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">ความเร่งด่วน</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-recent-table" class="bg-white divide-y divide-slate-100 text-sm">
+                            <!-- Injected Dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 2: REPORT FORM ==================== -->
+        <section id="page-report" class="hidden max-w-3xl mx-auto">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-indigo-900 to-indigo-800 px-6 py-8 text-white">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div class="bg-indigo-700/50 p-2 rounded-xl">
+                            <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                        </div>
+                        <h2 class="text-xl md:text-2xl font-bold">แบบฟอร์มแจ้งซ่อมแซมอุปกรณ์ชำรุด</h2>
+                    </div>
+                    <p class="text-indigo-200 text-xs md:text-sm">
+                        กรอกข้อมูลรายละเอียดการชำรุดและอัปโหลดรูปภาพเพื่อให้เจ้าหน้าที่กองอาคารสถานที่ดำเนินงานแก้ไขอย่างรวดเร็ว
+                    </p>
+                </div>
+
+                <form id="maintenance-form" onsubmit="handleFormSubmit(event)" class="p-6 md:p-8 space-y-6">
+                    <!-- Category Selector with Cards -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-slate-700">1. เลือกประเภทงานซ่อมแซม <span class="text-rose-500">*</span></label>
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="category-cards-container">
+                            <!-- Selected via JS -->
+                        </div>
+                        <input type="hidden" id="form-category" required>
+                    </div>
+
+                    <!-- Problem Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5 col-span-1 md:col-span-2">
+                            <label for="form-title" class="text-sm font-bold text-slate-700">2. หัวข้อเรื่อง/ชื่ออุปกรณ์ที่ชำรุด <span class="text-rose-500">*</span></label>
+                            <input type="text" id="form-title" placeholder="เช่น หลอดไฟทางเดินเสีย, เครื่องปรับอากาศไม่เย็น, ก๊อกน้ำอ่างล้างหน้ารั่ว" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
+                        </div>
+                        <div class="space-y-1.5 col-span-1 md:col-span-2">
+                            <label for="form-description" class="text-sm font-bold text-slate-700">3. รายละเอียดและอาการชำรุดเพิ่มเติม</label>
+                            <textarea id="form-description" rows="3" placeholder="โปรดระบุรายละเอียดของปัญหาเพิ่มเติม เช่น เปิดไม่ติด มีเสียงดังผิดปกติ มีน้ำหยดตลอดเวลา เป็นต้น" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Location and Urgency -->
+                    <div class="border-t border-slate-100 pt-5 space-y-4">
+                        <h4 class="text-sm font-bold text-indigo-900 flex items-center gap-1.5">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-indigo-600"></i> ข้อมูลสถานที่และระดับความสำคัญ
+                        </h4>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label for="form-building" class="text-sm font-bold text-slate-700">อาคาร/ตึก <span class="text-rose-500">*</span></label>
+                                <select id="form-building" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white" required>
+                                    <option value="">-- เลือกอาคาร --</option>
+                                    <option value="คณะวิศวกรรมศาสตร์">อาคารวิศวกรรมศาสตร์</option>
+                                    <option value="คณะวิทยาศาสตร์">อาคารวิทยาศาสตร์และเทคโนโลยี</option>
+                                    <option value="หอสมุดกลาง">หอสมุดส่วนกลาง (Central Library)</option>
+                                    <option value="อาคารเรียนรวม 1">อาคารเรียนรวมเอนกประสงค์ 1</option>
+                                    <option value="อาคารยิมเนเซียม">อาคารยิมเนเซียมและสนามกีฬาในร่ม</option>
+                                    <option value="หอพักชาย 2">หอพักนักศึกษาชาย อาคาร 2</option>
+                                    <option value="หอพักหญิง 4">หอพักนักศึกษาหญิง อาคาร 4</option>
+                                    <option value="โรงอาหารกลาง">โรงอาหารและศูนย์บริการนักศึกษา</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label for="form-urgency" class="text-sm font-bold text-slate-700">ระดับความเร่งด่วน <span class="text-rose-500">*</span></label>
+                                <select id="form-urgency" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white" required>
+                                    <option value="ต่ำ">ต่ำ (งานซ่อมทั่วไป, ไม่กระทบการเรียนการสอน)</option>
+                                    <option value="ปานกลาง" selected>ปานกลาง (ควรซ่อมใน 2-3 วัน, รบกวนการใช้งานบางส่วน)</option>
+                                    <option value="สูง">สูง (ชำรุดมาก, อาจส่งผลกระทบเป็นวงกว้าง)</option>
+                                    <option value="เร่งด่วนที่สุด">เร่งด่วนที่สุด (อันตรายต่อชีวิต/ทรัพย์สิน, ท่อประปาใหญ่แตก, ไฟช็อต)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label for="form-floor" class="text-sm font-bold text-slate-700">ชั้น <span class="text-rose-500">*</span></label>
+                                <input type="text" id="form-floor" placeholder="เช่น ชั้น 3, ชั้น G" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label for="form-room" class="text-sm font-bold text-slate-700">ห้อง/บริเวณ <span class="text-rose-500">*</span></label>
+                                <input type="text" id="form-room" placeholder="เช่น ห้อง 304, ทางเดินหน้าลิฟต์" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details and Real File Upload System -->
+                    <div class="border-t border-slate-100 pt-5 space-y-4">
+                        <h4 class="text-sm font-bold text-indigo-900 flex items-center gap-1.5">
+                            <i data-lucide="user" class="w-4 h-4 text-indigo-600"></i> ข้อมูลผู้แจ้งและรูปภาพประกอบ
+                        </h4>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label for="form-reporter" class="text-sm font-bold text-slate-700">ชื่อผู้แจ้ง <span class="text-rose-500">*</span></label>
+                                <input type="text" id="form-reporter" placeholder="เช่น นายสมศักดิ์ รักเรียน" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label for="form-phone" class="text-sm font-bold text-slate-700">เบอร์ติดต่อกลับ <span class="text-rose-500">*</span></label>
+                                <input type="tel" id="form-phone" placeholder="เช่น 081-234-5678" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
+                            </div>
+                        </div>
+
+                        <!-- Real File Upload Dropzone -->
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-bold text-slate-700">รูปภาพจุดที่ชำรุด <span class="text-xs text-slate-400 font-normal">(อัปโหลดไฟล์ภาพจริง)</span></label>
+                            
+                            <div class="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl p-6 bg-slate-50 hover:bg-slate-100/50 hover:border-indigo-400 transition cursor-pointer relative" id="dropzone">
+                                <input type="file" id="form-file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleImageUpload(event)">
+                                
+                                <div class="text-center space-y-2" id="upload-prompt">
+                                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-full inline-block">
+                                        <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-700">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์ภาพมาวางที่นี่</p>
+                                    <p class="text-[10px] text-slate-400">รองรับไฟล์รูปภาพ JPEG, PNG ขนาดไม่เกิน 2MB</p>
+                                </div>
+                                
+                                <div class="hidden w-full flex flex-col items-center space-y-2 relative" id="upload-preview-container">
+                                    <img id="upload-preview" src="" alt="Preview" class="h-40 max-w-xs object-cover rounded-xl border border-slate-200 shadow-md">
+                                    <button type="button" onclick="removeUploadedImage(event)" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 transition z-10">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> ลบรูปภาพ
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="form-photo-data" value="">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex space-x-3 pt-3">
+                        <button type="button" onclick="switchTab('dashboard')" class="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl text-sm transition text-center">
+                            ยกเลิก
+                        </button>
+                        <button type="submit" class="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-sm shadow-md transition text-center flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> ส่งข้อมูลเพื่อดำเนินการซ่อมแซม
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 3: TRACKING & SEARCH ==================== -->
+        <section id="page-track" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div class="max-w-md">
+                    <h2 class="text-xl font-bold text-slate-900">ค้นหาและติดตามสถานะงานซ่อม</h2>
+                    <p class="text-xs text-slate-500">กรอกรหัสงาน (เช่น REQ-XXXX) หรือกรองด้วยสถานะเพื่อดูรายละเอียดการดำเนินงาน</p>
+                </div>
+
+                <!-- Filters panel -->
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <i data-lucide="search" class="absolute left-3.5 top-3 w-5 h-5 text-slate-400"></i>
+                        <input type="text" id="track-search-input" onkeyup="filterTrackList()" placeholder="ค้นหารายการด้วย รหัสงาน, ชื่อเรื่อง, สถานที่ หรือชื่อผู้แจ้ง..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="track-filter-status" onchange="filterTrackList()" class="bg-white px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="ทั้งหมด">ทุกสถานะ</option>
+                            <option value="รอดำเนินการ">รอดำเนินการ</option>
+                            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+                            <option value="ยกเลิก">ยกเลิกแล้ว</option>
+                        </select>
+                        <select id="track-filter-category" onchange="filterTrackList()" class="bg-white px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="ทั้งหมด">ทุกประเภท</option>
+                            <option value="ไฟฟ้า">ระบบไฟฟ้า</option>
+                            <option value="ประปา">ระบบประปา</option>
+                            <option value="แอร์">เครื่องปรับอากาศ</option>
+                            <option value="โครงสร้าง">โครงสร้าง/อาคาร</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Double Columns layout: Left = List, Right = Details View -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- List View -->
+                <div class="lg:col-span-1 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 max-h-[600px] overflow-y-auto space-y-3" id="track-list">
+                    <!-- Dynamic List of Cards -->
+                </div>
+
+                <!-- Detailed View Container -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100" id="track-details-container">
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-400 space-y-3">
+                        <div class="bg-slate-50 p-4 rounded-full">
+                            <i data-lucide="info" class="w-10 h-10 text-slate-400"></i>
+                        </div>
+                        <p class="font-bold text-slate-600">กรุณาเลือกรายการซ่อมบำรุงที่ต้องการดูข้อมูล</p>
+                        <p class="text-xs text-slate-400 text-center max-w-xs">คลิกเลือกรายการแจ้งซ่อมด้านซ้าย หรือกดสัญญาลักษณ์อาคารบนแผนที่ เพื่อดูไทม์ไลน์และรายละเอียดการแก้ไขปัญหา</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 4: ADMIN PORTAL ==================== -->
+        <section id="page-admin" class="hidden space-y-6">
+            <!-- Admin Login Box (Shown when not authenticated) -->
+            <div id="admin-login-box" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-md border border-slate-100 space-y-6 mt-10 text-left">
+                <div class="text-center space-y-2">
+                    <div class="bg-indigo-50 text-indigo-600 p-4 rounded-full inline-block">
+                        <i data-lucide="lock" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900">เข้าสู่ระบบควบคุม UniFix สำหรับเจ้าหน้าที่</h3>
+                    <p class="text-xs text-slate-500">กรอกรหัสพนักงานหรือรหัสจำลองเพื่อเข้าสู่ระบบส่วนงานช่างซ่อมบำรุง</p>
+                </div>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label for="admin-username" class="text-xs font-bold text-slate-700">รหัสเจ้าหน้าที่ / ชื่อผู้ใช้</label>
+                        <input type="text" id="admin-username" placeholder="ระบุ 'admin' หรือ 'staff'" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="admin-password" class="text-xs font-bold text-slate-700">รหัสผ่าน</label>
+                        <input type="password" id="admin-password" placeholder="ระบุ '1234'" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-md flex items-center justify-center gap-2">
+                        <i data-lucide="log-in" class="w-4 h-4"></i> เข้าสู่ระบบเจ้าหน้าที่
+                    </button>
+                    <div class="text-center text-[10px] text-slate-400 pt-2 border-t border-slate-50">
+                        * สาธิตการทดลองใช้งาน: ใช้ชื่อบัญชี <span class="font-bold text-slate-600">admin</span> รหัสผ่าน <span class="font-bold text-slate-600">1234</span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Admin Dashboard & Workspace (Shown after successful login) -->
+            <div id="admin-main-content" class="hidden space-y-6">
+                <!-- Admin Controls Header -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="shield-check" class="text-indigo-600 w-6 h-6"></i> ส่วนงานซ่อมบำรุงกองอาคารสถานที่ (Admin Portal)
+                        </h2>
+                        <p class="text-xs text-slate-500">สำหรับเจ้าหน้าที่ช่างเทคนิคในการมอบหมาย ติดตามสถานะ และดำเนินการแก้ไขความชำรุดทั้งหมด</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="injectDemoRequests()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-2 rounded-xl border border-indigo-200 transition-colors flex items-center gap-1.5">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> โหลดตัวอย่างใบงานใหม่
+                        </button>
+                        <button onclick="resetSystemData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-2 rounded-xl border border-rose-200 transition-colors flex items-center gap-1.5">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> ล้างข้อมูลระบบใหม่
+                        </button>
+                        <button onclick="handleAdminLogout()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 transition-colors flex items-center gap-1.5">
+                            <i data-lucide="log-out" class="w-4 h-4 text-slate-500"></i> ออกจากระบบ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Analytics Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/50 p-4 rounded-2xl border border-indigo-100 flex items-center justify-between shadow-sm">
+                        <div>
+                            <p class="text-[10px] text-indigo-600 font-bold uppercase">ระยะเวลาดำเนินการเฉลี่ย</p>
+                            <p class="text-lg font-black text-indigo-950 mt-0.5">2.4 วัน</p>
+                        </div>
+                        <div class="p-2 bg-indigo-600/10 text-indigo-600 rounded-xl">
+                            <i data-lucide="hourglass" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-4 rounded-2xl border border-emerald-100 flex items-center justify-between shadow-sm">
+                        <div>
+                            <p class="text-[10px] text-emerald-600 font-bold uppercase">อัตรางานเสร็จสมบูรณ์</p>
+                            <p class="text-lg font-black text-emerald-950 mt-0.5">87.5%</p>
+                        </div>
+                        <div class="p-2 bg-emerald-600/10 text-emerald-600 rounded-xl">
+                            <i data-lucide="trending-up" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-rose-50 to-rose-100/50 p-4 rounded-2xl border border-rose-100 flex items-center justify-between shadow-sm">
+                        <div>
+                            <p class="text-[10px] text-rose-600 font-bold uppercase">ใบงานค้างเกิน 3 วัน</p>
+                            <p class="text-lg font-black text-rose-950 mt-0.5">1 รายการ</p>
+                        </div>
+                        <div class="p-2 bg-rose-600/10 text-rose-600 rounded-xl">
+                            <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Live Queue & Ticket Management -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <!-- Live Tickets Queue -->
+                    <div class="xl:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-[650px]">
+                        <div class="mb-4 text-left">
+                            <h3 class="font-bold text-slate-900 text-md flex items-center gap-2">
+                                <i data-lucide="activity" class="w-4 h-4 text-emerald-500"></i> คิวกระดานคำขอซ่อมบำรุง
+                            </h3>
+                            <p class="text-[11px] text-slate-500">เรียงลำดับความสำคัญของงานซ่อมล่าสุด</p>
+                        </div>
+                        
+                        <div class="flex-grow overflow-y-auto space-y-3 pr-1" id="admin-queue">
+                            <!-- Queue Card Items -->
+                        </div>
+                    </div>
+
+                    <!-- Ticket Action Station -->
+                    <div class="xl:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-[650px] overflow-y-auto" id="admin-workstation">
+                        <div class="flex flex-col items-center justify-center py-24 text-slate-400 space-y-3 h-full">
+                            <div class="bg-slate-50 p-4 rounded-full">
+                                <i data-lucide="terminal" class="w-10 h-10 text-slate-400"></i>
+                            </div>
+                            <p class="font-bold text-slate-600">สถานีดำเนินการจัดการใบแจ้งซ่อม</p>
+                            <p class="text-xs text-slate-400 text-center max-w-sm">โปรดคลิกเลือกใบงานชำรุดในคิวด้านซ้ายมือ เพื่อตรวจสอบข้อมูลผู้ส่งเรื่อง แผนผังพิกัด อนุมัติจัดหาผู้รับผิดชอบ หรือบันทึกปิดใบงานเสร็จสิ้น</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JOB PRINT CARD MODAL -->
+    <div id="print-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200">
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="printer" class="w-5 h-5 text-indigo-400"></i>
+                    <h3 class="font-bold text-md">ใบสั่งซ่อมบำรุงทางเทคนิค (Work Order Card)</h3>
+                </div>
+                <button onclick="closePrintModal()" class="text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6 text-left text-sm max-h-[70vh] overflow-y-auto" id="print-modal-content">
+                <!-- Printable ticket details injected dynamically -->
+            </div>
+            <div class="bg-slate-50 p-4 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closePrintModal()" class="bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition">
+                    ปิดหน้าต่าง
+                </button>
+                <button onclick="triggerActualPrint()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow">
+                    <i data-lucide="printer" class="w-4 h-4"></i> ส่งพิมพ์ใบสั่งงาน
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-center text-xs mt-auto">
+        <p>© 2026 ระบบ UniFix มหาวิทยาลัยเทคโนโลยีและนวัตกรรม - พัฒนาขึ้นโดยกองอาคารสถานที่และระบบเครือข่ายกลาง</p>
+        <p class="text-slate-600 mt-1">เทคโนโลยีที่ขับเคลื่อน: HTML5, TailwindCSS, Lucide SVG Icons, Single File SPA State Engine</p>
+    </footer>
+
+    <!-- JavaScript Engine -->
+    <script>
+        // State Management
+        let appState = {
+            requests: [],
+            categories: {
+                "ไฟฟ้า": { icon: "zap", color: "indigo", bg: "bg-indigo-50", text: "text-indigo-600" },
+                "ประปา": { icon: "droplets", color: "sky", bg: "bg-sky-50", text: "text-sky-600" },
+                "แอร์": { icon: "snowflake", color: "cyan", bg: "bg-cyan-50", text: "text-cyan-600" },
+                "โครงสร้าง": { icon: "building", color: "amber", bg: "bg-amber-50", text: "text-amber-600" },
+                "อื่นๆ": { icon: "more-horizontal", color: "slate", bg: "bg-slate-50", text: "text-slate-600" }
+            },
+            selectedCategory: "",
+            currentTrackId: null,
+            currentAdminId: null,
+            isAdminLoggedIn: false // Authentication state tracker
+        };
+
+        // Predefined Campus Coordinates Map (To plot points on simulated campus graphic dynamically based on Selected Building)
+        const buildingCoordinatesMap = {
+            "คณะวิศวกรรมศาสตร์": { x: 18, y: 15 },
+            "คณะวิทยาศาสตร์": { x: 75, y: 25 },
+            "หอสมุดกลาง": { x: 35, y: 50 },
+            "อาคารเรียนรวม 1": { x: 55, y: 35 },
+            "อาคารยิมเนเซียม": { x: 20, y: 80 },
+            "หอพักชาย 2": { x: 82, y: 75 },
+            "หอพักหญิง 4": { x: 85, y: 68 },
+            "โรงอาหารกลาง": { x: 50, y: 85 }
+        };
+
+        // Static Initial Mock Data
+        const initialMockData = [
+            {
+                id: "REQ-3042",
+                title: "หลอดไฟทางเดินดับ 3 ดวง เสี่ยงอันตรายตอนกลางคืน",
+                category: "ไฟฟ้า",
+                description: "ทางเดินขึ้นตึกชั้น 2 ฝั่งตะวันออก มืดมาก หลอดไฟเพดานน่าจะขาดไปสามดวงครับ นิสิตเดินไปห้องเรียนรอบค่ำลำบากมาก",
+                building: "อาคารเรียนรวม 1",
+                floor: "ชั้น 2",
+                room: "บริเวณโถงบันไดหลัก ฝั่งตะวันออก",
+                urgency: "สูง",
+                reporter: "นิสิต ศรันย์ วงศ์พินิจ",
+                phone: "086-554-1234",
+                photo: "broken-bulb",
+                status: "รอดำเนินการ",
+                createdAt: "2026-07-06T19:30:00.000Z",
+                logs: [
+                    { time: "2026-07-06T19:30:00.000Z", message: "ระบบได้รับข้อมูลคำร้องส่งซ่อมเรียบร้อยแล้ว", type: "system" }
+                ],
+                coords: { x: 55, y: 35 },
+                assignedTechnician: "",
+                cost: null,
+                notes: ""
+            },
+            {
+                id: "REQ-3041",
+                title: "เครื่องปรับอากาศน้ำหยดหนักมากและไม่เย็น",
+                category: "แอร์",
+                description: "แอร์ในห้องสมุดเสียงดังและน้ำแอร์รั่วไหลหยดลงกองหนังสือบนโต๊ะยาว ต้องหาถังขยะมารองน้ำไว้",
+                building: "หอสมุดกลาง",
+                floor: "ชั้น 1",
+                room: "โซนวารสารเก่า โต๊ะทำงานกลุ่มที่ 12",
+                urgency: "ปานกลาง",
+                reporter: "นางประนอม จิตรลดา (บรรณารักษ์)",
+                phone: "081-334-1190",
+                photo: "air-leak",
+                status: "กำลังดำเนินการ",
+                createdAt: "2026-07-05T08:15:00.000Z",
+                logs: [
+                    { time: "2026-07-05T08:15:00.000Z", message: "ระบบได้รับข้อมูลคำร้องส่งซ่อมเรียบร้อยแล้ว", type: "system" },
+                    { time: "2026-07-05T09:40:00.000Z", message: "เจ้าหน้าที่งานกองอาคารเปลี่ยนสถานะเป็น 'กำลังดำเนินการ'", type: "admin" },
+                    { time: "2026-07-05T10:00:00.000Z", message: "มอบหมายให้ ช่างวิชัย แสนดี (ช่างระบบปรับอากาศ) เข้าดำเนินการตรวจสอบหน้างาน", type: "assign" }
+                ],
+                coords: { x: 35, y: 50 },
+                assignedTechnician: "ช่างวิชัย แสนดี",
+                cost: null,
+                notes: "รับเรื่องดำเนินการเข้าล้างแอร์ล้างแผ่นกรองและแก้ไขท่อน้ำทิ้งอุดตัน คาดว่าเสร็จในบ่ายนี้"
+            },
+            {
+                id: "REQ-3039",
+                title: "ก๊อกน้ำอ่างล้างมือชำรุดน้ำไหลทะลักปิดไม่ได้",
+                category: "ประปา",
+                description: "ก๊อกน้ำอ่างล้างหน้าอันกลางเกลียวหวานปิดสนิทไม่ได้ น้ำพุ่งกระจายไหลนองพื้นห้องน้ำหญิง เสี่ยงทำให้ลื่นล้มและเสียน้ำจำนวนมาก",
+                building: "คณะวิศวกรรมศาสตร์",
+                floor: "ชั้น 1",
+                room: "ห้องน้ำหญิง ติดห้องโถงกลางตึก 3",
+                urgency: "เร่งด่วนที่สุด",
+                reporter: "ดร.สมบัติ พิสุทธิพงศ์",
+                phone: "089-771-0023",
+                photo: "water-pipe",
+                status: "เสร็จสิ้น",
+                createdAt: "2026-07-04T10:00:00.000Z",
+                logs: [
+                    { time: "2026-07-04T10:00:00.000Z", message: "ระบบได้รับข้อมูลส่งซ่อมด่วนเป็นกรณีพิเศษ", type: "system" },
+                    { time: "2026-07-04T10:10:00.000Z", message: "เจ้าหน้าที่เข้าสับวาล์วน้ำฉุกเฉิน มอบหมายทีมประปาความรวดเร็วสูง", type: "assign" },
+                    { time: "2026-07-04T11:20:00.000Z", message: "ช่างสามารถเข้าเปลี่ยนลูกลอยและเปลี่ยนก๊อกทองเหลืองใหม่เรียบร้อย", type: "repair" },
+                    { time: "2026-07-04T11:30:00.000Z", message: "เจ้าหน้าที่อนุมัติปิดเคสเสร็จสิ้นเรียบร้อย ทดสอบระบบน้ำไม่รั่วซึมแล้ว", type: "complete" }
+                ],
+                coords: { x: 18, y: 15 },
+                assignedTechnician: "ช่างมานพ และทีมฉุกเฉิน",
+                cost: 450,
+                notes: "เปลี่ยนก๊อกอ่างล้างหน้าเป็นก๊อกระบบสเตนเลสคุณภาพสูงเพื่อความคงทนทดสอบแล้วไม่มีรั่วซึมอีก"
+            },
+            {
+                id: "REQ-3030",
+                title: "ลูกบิดประตูห้องเรียนสัมมนาพัง ล็อคประตูไม่ได้",
+                category: "โครงสร้าง",
+                description: "ไม่สามารถกดล็อคประตูจากด้านในได้เนื่องจากลูกบิดหลวม ควรรีบซ่อมเพราะมีทรัพย์สิน คอมพิวเตอร์อยู่ภายในห้องเรียน",
+                building: "คณะวิทยาศาสตร์",
+                floor: "ชั้น 4",
+                room: "ห้อง SC4-402 (ห้องสัมมนาคณิตศาสตร์)",
+                urgency: "ปานกลาง",
+                reporter: "อ.วิภาวี นามดี",
+                phone: "082-009-4567",
+                photo: "broken-door",
+                status: "เสร็จสิ้น",
+                createdAt: "2026-07-03T11:30:00.000Z",
+                logs: [
+                    { time: "2026-07-03T11:30:00.000Z", message: "ระบบได้รับคำขอแจ้งซ่อม", type: "system" },
+                    { time: "2026-07-03T14:00:00.000Z", message: "ดำเนินการส่งช่างไม้เข้าไปเปลี่ยนไส้ลูกบิดประตูใหม่เรียบร้อย", type: "complete" }
+                ],
+                coords: { x: 75, y: 25 },
+                assignedTechnician: "ช่างสมยศ ปานพิม",
+                cost: 320,
+                notes: "เปลี่ยนลูกบิดและกุญแจครบชุดใหม่เสร็จสิ้น"
+            }
+        ];
+
+        // Switch Screen Tabs
+        function switchTab(tabId) {
+            // Hide all pages
+            ['dashboard', 'report', 'track', 'admin'].forEach(page => {
+                const element = document.getElementById(`page-${page}`);
+                if (element) element.classList.add('hidden');
+                
+                // Reset tab button states (Desktop)
+                const navBtn = document.getElementById(`nav-${page}`);
+                if (navBtn) {
+                    navBtn.className = "px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-800 text-indigo-100 hover:text-white flex items-center gap-1";
+                    if (page === 'admin') navBtn.className += " border border-indigo-700";
+                }
+
+                // Mobile
+                const mobBtn = document.getElementById(`mob-${page}`);
+                if (mobBtn) {
+                    mobBtn.className = "flex flex-col items-center text-xs text-indigo-300";
+                }
+            });
+
+            // Show selected page
+            const selectedPage = document.getElementById(`page-${tabId}`);
+            if (selectedPage) selectedPage.classList.remove('hidden');
+
+            // Set active states (Desktop Nav)
+            const activeNavBtn = document.getElementById(`nav-${tabId}`);
+            if (activeNavBtn) {
+                activeNavBtn.className = "px-3 py-2 rounded-md text-sm font-medium bg-indigo-800 text-white flex items-center gap-1";
+                if (tabId === 'admin') activeNavBtn.className += " border border-indigo-500 bg-indigo-700";
+            }
+
+            // Mobile Nav
+            const activeMobBtn = document.getElementById(`mob-${tabId}`);
+            if (activeMobBtn) {
+                activeMobBtn.className = "flex flex-col items-center text-xs text-white";
+            }
+
+            // Toggle admin sub-layouts based on simulated authentication state
+            if (tabId === 'admin') {
+                toggleAdminAuthView();
+            } else {
+                // Adjust Role Badge simulating state
+                const badge = document.getElementById('role-badge');
+                badge.className = "bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> โหมดจำลอง: นิสิต/บุคลากร`;
+            }
+
+            // Refresh view layouts for current tab
+            refreshAllViews();
+        }
+
+        // Toggle admin views depending on authorization state
+        function toggleAdminAuthView() {
+            const loginBox = document.getElementById('admin-login-box');
+            const mainContent = document.getElementById('admin-main-content');
+            const badge = document.getElementById('role-badge');
+
+            if (appState.isAdminLoggedIn) {
+                loginBox.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                badge.className = "bg-rose-600 text-white text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> โหมดจำลอง: เจ้าหน้าที่/ช่าง`;
+            } else {
+                loginBox.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+                badge.className = "bg-slate-500 text-white text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-300 animate-pulse"></span> รอการเข้าสู่ระบบเจ้าหน้าที่`;
+            }
+        }
+
+        // Handle Admin Login Action
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('admin-username').value.trim();
+            const pass = document.getElementById('admin-password').value.trim();
+
+            if ((user === 'admin' || user === 'staff') && pass === '1234') {
+                appState.isAdminLoggedIn = true;
+                showToast("เข้าสู่ระบบสำเร็จ", "ยินดีต้อนรับเข้าสู่แผงควบคุมระบบจัดสรรงานกองอาคารสถานที่", "success");
+                toggleAdminAuthView();
+                refreshAllViews();
+            } else {
+                showToast("เข้าสู่ระบบล้มเหลว", "ข้อมูลผู้ใช้หรือรหัสผ่านจำลองไม่ถูกต้อง โปรดลองอีกครั้ง", "error");
+            }
+        }
+
+        // Handle Admin Logout Action
+        function handleAdminLogout() {
+            appState.isAdminLoggedIn = false;
+            showToast("ออกจากระบบแล้ว", "เซสชันสำหรับเจ้าหน้าที่ถูกทำลายเพื่อความปลอดภัย", "info");
+            toggleAdminAuthView();
+        }
+
+        // Helper to Save State to Memory/LocalStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('unifix_requests', JSON.stringify(appState.requests));
+        }
+
+        // Reset All State
+        function resetSystemData() {
+            if (confirm("คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตข้อมูลระบบกลับไปเป็นค่าเริ่มต้นเดิมทั้งหมด?")) {
+                appState.requests = [...initialMockData];
+                saveToLocalStorage();
+                refreshAllViews();
+                showToast("สำเร็จ", "รีเซ็ตข้อมูลระบบเป็นค่าเริ่มต้นแล้ว", "success");
+                switchTab('dashboard');
+            }
+        }
+
+        // Add Mock Requests for Demonstration
+        function injectDemoRequests() {
+            const randomId = "REQ-" + Math.floor(1000 + Math.random() * 9000);
+            const demoJobs = [
+                {
+                    id: randomId,
+                    title: "กระดานไวท์บอร์ดชำรุดแตกหักหลุดจากบานพับ",
+                    category: "โครงสร้าง",
+                    description: "กระดานไวท์บอร์ดมุมซ้ายล่างหลุดจากพุกพลาสติกที่เจาะผนัง เวลาลบทำให้กระดานเขย่าแรงมากเกรงว่าจะร่วงหล่นทับโต๊ะอาจารย์",
+                    building: "อาคารเรียนรวม 1",
+                    floor: "ชั้น 4",
+                    room: "ห้องบรรยาย SC1-404",
+                    urgency: "ปานกลาง",
+                    reporter: "อ.ดนัย จิตอารีย์",
+                    phone: "083-441-2351",
+                    photo: "broken-door",
+                    status: "รอดำเนินการ",
+                    createdAt: new Date().toISOString(),
+                    logs: [{ time: new Date().toISOString(), message: "ระบบได้รับข้อมูลคำร้องส่งซ่อมเรียบร้อยแล้ว", type: "system" }],
+                    coords: buildingCoordinatesMap["อาคารเรียนรวม 1"],
+                    assignedTechnician: "",
+                    cost: null,
+                    notes: ""
+                },
+                {
+                    id: randomId,
+                    title: "น้ำล้นส้วมซึมชั้น 3 ทะลักออกนอกทางเข้า",
+                    category: "ประปา",
+                    description: "ห้องน้ำชายชั้น 3 ส้วมอุดตันและน้ำไหลไม่หยุดไหลออกเจิ่งนองเปียกหน้าโถงลิฟต์ ส่งกลิ่นรบกวนทั้งชั้นเรียน",
+                    building: "หอสมุดกลาง",
+                    floor: "ชั้น 3",
+                    room: "ห้องน้ำชาย บริเวณโถงลิฟต์ตึกทิศเหนือ",
+                    urgency: "เร่งด่วนที่สุด",
+                    reporter: "สมยศ ใจรื่น (ฝ่ายทำความสะอาด)",
+                    phone: "091-778-0099",
+                    photo: "water-pipe",
+                    status: "รอดำเนินการ",
+                    createdAt: new Date().toISOString(),
+                    logs: [{ time: new Date().toISOString(), message: "ระบบได้รับข้อมูลแจ้งซ่อมกรณีเร่งด่วนเป็นพิเศษ", type: "system" }],
+                    coords: buildingCoordinatesMap["หอสมุดกลาง"],
+                    assignedTechnician: "",
+                    cost: null,
+                    notes: ""
+                }
+            ];
+
+            const chosen = demoJobs[Math.floor(Math.random() * demoJobs.length)];
+            appState.requests.unshift(chosen);
+            saveToLocalStorage();
+            refreshAllViews();
+            showToast("เพิ่มข้อมูลแล้ว", `เพิ่มเคสจำลอง ${chosen.id} เข้าในระบบสำเร็จ!`, "info");
+        }
+
+        // Custom Toast System
+        function showToast(title, message, type = "success") {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const tTitle = document.getElementById('toast-title');
+            const tMsg = document.getElementById('toast-message');
+
+            tTitle.innerText = title;
+            tMsg.innerText = message;
+
+            if (type === 'success') {
+                icon.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6 text-emerald-400"></i>`;
+                toast.className = "fixed top-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700 transition-all duration-300 transform translate-y-0 opacity-100";
+            } else if (type === 'info') {
+                icon.innerHTML = `<i data-lucide="info" class="w-6 h-6 text-indigo-400"></i>`;
+                toast.className = "fixed top-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-indigo-700 transition-all duration-300 transform translate-y-0 opacity-100";
+            } else {
+                icon.innerHTML = `<i data-lucide="alert-triangle" class="w-6 h-6 text-rose-400"></i>`;
+                toast.className = "fixed top-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-rose-700 transition-all duration-300 transform translate-y-0 opacity-100";
+            }
+            lucide.createIcons();
+
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.className = "fixed top-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700 transition-all duration-300 transform translate-y-[-20px] opacity-0 hidden";
+            }, 3500);
+        }
+
+        // Refresh UI Views based on state change
+        function refreshAllViews() {
+            updateDashboardStats();
+            renderDashboardRecentTable();
+            renderMapMarkers();
+            renderTrackingView();
+            renderAdminView();
+        }
+
+        // 1. Dashboard Logic
+        function updateDashboardStats() {
+            const reqs = appState.requests;
+            const counts = {
+                pending: reqs.filter(r => r.status === 'รอดำเนินการ').length,
+                inprogress: reqs.filter(r => r.status === 'กำลังดำเนินการ').length,
+                completed: reqs.filter(r => r.status === 'เสร็จสิ้น').length,
+                urgent: reqs.filter(r => r.urgency === 'สูง' || r.urgency === 'เร่งด่วนที่สุด').length
+            };
+
+            document.getElementById('stat-pending').innerText = counts.pending;
+            document.getElementById('stat-inprogress').innerText = counts.inprogress;
+            document.getElementById('stat-completed').innerText = counts.completed;
+            document.getElementById('stat-urgent').innerText = counts.urgent;
+
+            // Render categories breakdown progress bar
+            const categoryBars = document.getElementById('category-bars');
+            categoryBars.innerHTML = '';
+
+            const categories = ["ไฟฟ้า", "ประปา", "แอร์", "โครงสร้าง", "อื่นๆ"];
+            categories.forEach(cat => {
+                const count = reqs.filter(r => r.category === cat).length;
+                const percentage = reqs.length > 0 ? (count / reqs.length) * 100 : 0;
+                const colorClass = appState.categories[cat].text;
+                const catDef = appState.categories[cat];
+
+                categoryBars.innerHTML += `
+                    <div>
+                        <div class="flex justify-between items-center text-xs mb-1">
+                            <span class="font-semibold flex items-center gap-1.5 text-slate-700">
+                                <span class="p-1 rounded bg-slate-100 ${colorClass}">
+                                    <i data-lucide="${catDef.icon}" class="w-3.5 h-3.5"></i>
+                                </span>
+                                ระบบ${cat}
+                            </span>
+                            <span class="font-bold text-slate-900">${count} งาน (${Math.round(percentage)}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="bg-indigo-600 h-2 rounded-full" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function renderDashboardRecentTable() {
+            const tableBody = document.getElementById('dashboard-recent-table');
+            tableBody.innerHTML = '';
+
+            const sorted = [...appState.requests].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+
+            if (sorted.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">ไม่มีประวัติคำร้องในฐานข้อมูลขณะนี้</td></tr>`;
+                return;
+            }
+
+            sorted.forEach(item => {
+                let urgencyBadge = '';
+                if (item.urgency === 'เร่งด่วนที่สุด') {
+                    urgencyBadge = '<span class="bg-rose-100 text-rose-800 text-xs px-2.5 py-0.5 rounded-full font-extrabold">เร่งด่วนที่สุด</span>';
+                } else if (item.urgency === 'สูง') {
+                    urgencyBadge = '<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">สูง</span>';
+                } else if (item.urgency === 'ปานกลาง') {
+                    urgencyBadge = '<span class="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-0.5 rounded-full font-medium">ปานกลาง</span>';
+                } else {
+                    urgencyBadge = '<span class="bg-slate-100 text-slate-800 text-xs px-2.5 py-0.5 rounded-full font-medium">ต่ำ</span>';
+                }
+
+                let statusBadge = '';
+                if (item.status === 'รอดำเนินการ') {
+                    statusBadge = '<span class="text-amber-500 bg-amber-50 border border-amber-200 text-xs px-2.5 py-1 rounded-lg font-bold">รอดำเนินการ</span>';
+                } else if (item.status === 'กำลังดำเนินการ') {
+                    statusBadge = '<span class="text-indigo-600 bg-indigo-50 border border-indigo-200 text-xs px-2.5 py-1 rounded-lg font-bold">กำลังซ่อม</span>';
+                } else if (item.status === 'เสร็จสิ้น') {
+                    statusBadge = '<span class="text-emerald-600 bg-emerald-50 border border-emerald-200 text-xs px-2.5 py-1 rounded-lg font-bold">เสร็จสิ้น</span>';
+                } else {
+                    statusBadge = '<span class="text-rose-600 bg-rose-50 border border-rose-200 text-xs px-2.5 py-1 rounded-lg font-bold">ยกเลิกแล้ว</span>';
+                }
+
+                const catIcon = appState.categories[item.category]?.icon || 'help-circle';
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="viewInTracker('${item.id}')">
+                        <td class="px-6 py-4 whitespace-nowrap font-mono font-bold text-indigo-900">${item.id}</td>
+                        <td class="px-6 py-4 font-semibold text-slate-900 max-w-xs truncate">${item.title}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-slate-600">
+                            <span class="flex items-center gap-1">
+                                <i data-lucide="${catIcon}" class="w-4 h-4 text-slate-400"></i> ${item.category}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-500 max-w-xs truncate">${item.building} ${item.floor} (${item.room})</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${urgencyBadge}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function renderMapMarkers() {
+            const container = document.getElementById('map-markers');
+            container.innerHTML = '';
+
+            appState.requests.forEach(item => {
+                if (!item.coords || !item.coords.x) return;
+
+                let color = "bg-amber-500";
+                if (item.status === 'กำลังดำเนินการ') color = "bg-indigo-600";
+                if (item.status === 'เสร็จสิ้น') color = "bg-emerald-500";
+                if (item.urgency === 'เร่งด่วนที่สุด') color = "bg-rose-600 animate-pulse";
+
+                container.innerHTML += `
+                    <div class="absolute cursor-pointer group pointer-events-auto" style="left: ${item.coords.x}%; top: ${item.coords.y}%; transform: translate(-50%, -50%); z-index: 40;" onclick="viewInTracker('${item.id}')">
+                        <!-- Marker Icon Point -->
+                        <div class="w-5 h-5 ${color} rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white text-[8px] font-bold">
+                            !
+                        </div>
+                        
+                        <!-- Mini Tooltip Hover -->
+                        <div class="hidden group-hover:block absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] py-1 px-2.5 rounded-lg shadow-xl whitespace-nowrap z-50 font-semibold pointer-events-none">
+                            [${item.id}] ${item.title.substring(0, 18)}...
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Action when building is clicked on interactive map
+        function viewInTrackerByBuilding(buildingName) {
+            const matchedJobs = appState.requests.filter(r => r.building === buildingName);
+            if (matchedJobs.length > 0) {
+                // Focus on the first active job of this building
+                viewInTracker(matchedJobs[0].id);
+            } else {
+                showToast("ข้อมูลสถานที่", `ขณะนี้ยังไม่มีปัญหาแจ้งซ่อมแซมภายในอาคาร "${buildingName}"`, "info");
+            }
+        }
+
+        function viewInTracker(id) {
+            appState.currentTrackId = id;
+            switchTab('track');
+            selectTrackItem(id);
+        }
+
+        // 2. Report Form Logic
+        function renderCategoryCards() {
+            const container = document.getElementById('category-cards-container');
+            container.innerHTML = '';
+
+            const categories = ["ไฟฟ้า", "ประปา", "แอร์", "โครงสร้าง", "อื่นๆ"];
+            categories.forEach(cat => {
+                const info = appState.categories[cat];
+                container.innerHTML += `
+                    <button type="button" onclick="selectFormCategory('${cat}')" id="cat-card-${cat}" class="cat-card-btn border-2 border-slate-200 bg-white hover:border-indigo-500 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 focus:outline-none transition-all">
+                        <div class="p-2.5 ${info.bg} ${info.text} rounded-xl">
+                            <i data-lucide="${info.icon}" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-xs font-bold text-slate-800">ระบบ${cat}</span>
+                    </button>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function selectFormCategory(cat) {
+            // Reset card styling
+            document.querySelectorAll('.cat-card-btn').forEach(btn => {
+                btn.className = "cat-card-btn border-2 border-slate-200 bg-white hover:border-indigo-500 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 focus:outline-none transition-all";
+            });
+
+            // Set Selected Styling
+            const activeCard = document.getElementById(`cat-card-${cat}`);
+            if (activeCard) {
+                activeCard.className = "cat-card-btn border-2 border-indigo-600 bg-indigo-50/50 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 focus:outline-none transition-all scale-105 shadow-sm";
+            }
+
+            appState.selectedCategory = cat;
+            document.getElementById('form-category').value = cat;
+        }
+
+        // Image Upload Handlers
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Size check: limit to 2MB to keep localStorage happy
+            if (file.size > 2 * 1024 * 1024) {
+                showToast("ไฟล์มีขนาดใหญ่เกินไป", "กรุณาเลือกไฟล์ภาพขนาดไม่เกิน 2MB เพื่อใช้ในโหมดจำลองนี้", "error");
+                e.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Data = event.target.result;
+                document.getElementById('form-photo-data').value = base64Data;
+                
+                // Switch display to preview image
+                document.getElementById('upload-prompt').classList.add('hidden');
+                document.getElementById('upload-preview-container').classList.remove('hidden');
+                document.getElementById('upload-preview').src = base64Data;
+                lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeUploadedImage(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            document.getElementById('form-file').value = '';
+            document.getElementById('form-photo-data').value = '';
+            document.getElementById('upload-prompt').classList.remove('hidden');
+            document.getElementById('upload-preview-container').classList.add('hidden');
+            document.getElementById('upload-preview').src = '';
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('form-title').value;
+            const category = document.getElementById('form-category').value;
+            const description = document.getElementById('form-description').value;
+            const building = document.getElementById('form-building').value;
+            const floor = document.getElementById('form-floor').value;
+            const room = document.getElementById('form-room').value;
+            const urgency = document.getElementById('form-urgency').value;
+            const reporter = document.getElementById('form-reporter').value;
+            const phone = document.getElementById('form-phone').value;
+            const photoData = document.getElementById('form-photo-data').value;
+
+            if (!category) {
+                showToast("ข้อมูลไม่ครบถ้วน", "โปรดเลือกประเภทงานแจ้งซ่อม", "error");
+                return;
+            }
+
+            // Automap coordinate position relative to selected building for elegant live mapping representation
+            const matchedCoords = buildingCoordinatesMap[building] || {
+                x: Math.floor(15 + Math.random() * 65),
+                y: Math.floor(15 + Math.random() * 65)
+            };
+
+            // Create new request ticket object
+            const requestId = "REQ-" + Math.floor(1000 + Math.random() * 9000);
+            const newRequest = {
+                id: requestId,
+                title,
+                category,
+                description,
+                building,
+                floor,
+                room,
+                urgency,
+                reporter,
+                phone,
+                photo: photoData || "broken-bulb", // uses Base64 string if uploaded, or standard fallback icon string
+                status: "รอดำเนินการ",
+                createdAt: new Date().toISOString(),
+                logs: [
+                    { time: new Date().toISOString(), message: "ระบบได้รับข้อมูลคำร้องส่งซ่อมเรียบร้อยแล้ว", type: "system" }
+                ],
+                coords: matchedCoords,
+                assignedTechnician: "",
+                cost: null,
+                notes: ""
+            };
+
+            // Push to state
+            appState.requests.unshift(newRequest);
+            saveToLocalStorage();
+
+            // Clear Form
+            document.getElementById('maintenance-form').reset();
+            appState.selectedCategory = "";
+            document.getElementById('form-category').value = "";
+            removeUploadedImage(null);
+            renderCategoryCards();
+
+            // Notify Success & Switch Tab
+            showToast("ส่งเรื่องเรียบร้อย", `ใบงานแจ้งซ่อม ${requestId} ได้รับเข้าคิวซ่อมบำรุงแล้ว`, "success");
+            switchTab('track');
+            selectTrackItem(requestId);
+        }
+
+        // 3. Tracking Page Logic
+        function renderTrackingView() {
+            const listContainer = document.getElementById('track-list');
+            listContainer.innerHTML = '';
+
+            const searchVal = document.getElementById('track-search-input').value.toLowerCase();
+            const filterStatus = document.getElementById('track-filter-status').value;
+            const filterCategory = document.getElementById('track-filter-category').value;
+
+            // Filter requests based on parameters
+            const filtered = appState.requests.filter(item => {
+                const matchSearch = item.id.toLowerCase().includes(searchVal) || 
+                                    item.title.toLowerCase().includes(searchVal) || 
+                                    item.building.toLowerCase().includes(searchVal) ||
+                                    item.room.toLowerCase().includes(searchVal) ||
+                                    item.reporter.toLowerCase().includes(searchVal);
+
+                const matchStatus = filterStatus === 'ทั้งหมด' || item.status === filterStatus;
+                const matchCategory = filterCategory === 'ทั้งหมด' || item.category === filterCategory;
+
+                return matchSearch && matchStatus && matchCategory;
+            });
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-10 text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                        <i data-lucide="info" class="w-6 h-6 mx-auto mb-2 text-slate-300"></i>
+                        <p class="text-xs font-bold">ไม่พบข้อมูลที่ค้นหา</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            filtered.forEach(item => {
+                const info = appState.categories[item.category] || appState.categories["อื่นๆ"];
+                const isSelected = item.id === appState.currentTrackId;
+                const activeBorder = isSelected ? 'border-indigo-600 bg-indigo-50/20 ring-1 ring-indigo-500' : 'border-slate-100 hover:border-slate-300';
+                
+                let badgeColor = '';
+                if (item.status === 'รอดำเนินการ') badgeColor = 'bg-amber-100 text-amber-800';
+                else if (item.status === 'กำลังดำเนินการ') badgeColor = 'bg-indigo-100 text-indigo-800';
+                else if (item.status === 'เสร็จสิ้น') badgeColor = 'bg-emerald-100 text-emerald-800';
+                else badgeColor = 'bg-rose-100 text-rose-800';
+
+                listContainer.innerHTML += `
+                    <div onclick="selectTrackItem('${item.id}')" class="p-4 bg-white border-2 ${activeBorder} rounded-xl cursor-pointer transition-all duration-200 shadow-sm relative text-left">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-mono font-bold text-indigo-950">${item.id}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${badgeColor}">${item.status}</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 line-clamp-1 mb-1">${item.title}</h4>
+                        <p class="text-xs text-slate-500 flex items-center gap-1 mb-2.5">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> ${item.building} (${item.floor})
+                        </p>
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-50 pt-2">
+                            <span class="font-semibold flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full ${info.text.replace('text', 'bg')}"></span>
+                                ${item.category}
+                            </span>
+                            <span>${new Date(item.createdAt).toLocaleDateString('th-TH', {day:'numeric', month:'short'})}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function filterTrackList() {
+            renderTrackingView();
+        }
+
+        function selectTrackItem(id) {
+            appState.currentTrackId = id;
+            
+            // Re-render list to show active state border
+            renderTrackingView();
+
+            const container = document.getElementById('track-details-container');
+            const item = appState.requests.find(r => r.id === id);
+
+            if (!item) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-400 space-y-3">
+                        <i data-lucide="info" class="w-10 h-10 text-slate-300"></i>
+                        <p class="font-bold text-slate-500">กรุณาเลือกรายการชำรุดเพื่อดูลายละเอียด</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            // Get Status Label and Style
+            let statusText = '';
+            let statusStyle = '';
+            if (item.status === 'รอดำเนินการ') {
+                statusText = 'รอดำเนินการ (กำลังจัดสรรช่าง)';
+                statusStyle = 'bg-amber-100 text-amber-800 border-amber-200';
+            } else if (item.status === 'กำลังดำเนินการ') {
+                statusText = 'กำลังดำเนินการแก้ไขปรับปรุง';
+                statusStyle = 'bg-indigo-100 text-indigo-800 border-indigo-200';
+            } else if (item.status === 'เสร็จสิ้น') {
+                statusText = 'เสร็จสิ้นภารกิจ (ส่งมอบงานแล้ว)';
+                statusStyle = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+            } else {
+                statusText = 'ยกเลิกคำร้องโดยเจ้าหน้าที่';
+                statusStyle = 'bg-rose-100 text-rose-800 border-rose-200';
+            }
+
+            // Photo Rendering (Real uploaded Base64 vs Mock dummy image)
+            let photoElementHtml = '';
+            if (item.photo && item.photo.startsWith('data:image/')) {
+                photoElementHtml = `
+                    <div class="bg-slate-100 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200 shadow-inner relative max-h-64">
+                        <img src="${item.photo}" alt="Evidence" class="w-full h-full object-cover">
+                        <span class="absolute bottom-2 left-2 bg-slate-900/70 text-white text-[9px] px-2 py-0.5 rounded">รูปภาพหลักฐานอัปโหลดจริง</span>
+                    </div>
+                `;
+            } else {
+                let emojiIcon = "💡";
+                if (item.photo === 'air-leak') emojiIcon = "❄️";
+                if (item.photo === 'water-pipe') emojiIcon = "🚰";
+                if (item.photo === 'broken-door') emojiIcon = "🚪";
+                photoElementHtml = `
+                    <div class="bg-slate-100 rounded-xl h-36 flex items-center justify-center border border-slate-200 relative overflow-hidden">
+                        <span class="text-4xl filter drop-shadow">${emojiIcon}</span>
+                        <span class="absolute bottom-2 left-2 bg-slate-900/70 text-white text-[9px] px-2 py-0.5 rounded">ภาพจำลองอ้างอิง: ${item.photo}</span>
+                    </div>
+                `;
+            }
+
+            // Timeline Logs HTML
+            let logsHtml = '';
+            item.logs.forEach(log => {
+                logsHtml += `
+                    <div class="flex gap-3 text-left">
+                        <div class="flex flex-col items-center">
+                            <div class="w-2.5 h-2.5 rounded-full bg-indigo-600 mt-1.5 ring-4 ring-indigo-100"></div>
+                            <div class="w-0.5 flex-grow bg-slate-200 my-1 min-h-[30px]"></div>
+                        </div>
+                        <div class="pb-4">
+                            <p class="text-xs text-slate-500 font-medium">${new Date(log.time).toLocaleString('th-TH')}</p>
+                            <p class="text-xs text-slate-800 font-semibold mt-0.5">${log.message}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="space-y-6 text-left">
+                    <!-- Ticket Header Status -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-5">
+                        <div>
+                            <span class="text-xs font-mono font-bold bg-slate-100 px-2.5 py-1 rounded-md text-slate-600">${item.id}</span>
+                            <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-1.5">${item.title}</h2>
+                        </div>
+                        <span class="text-xs px-3 py-1.5 rounded-xl font-bold border ${statusStyle} whitespace-nowrap">
+                            ● ${statusText}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Details Grid -->
+                        <div class="md:col-span-2 space-y-4">
+                            <!-- Metadata Block -->
+                            <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl">
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">ผู้รายงานเคส</p>
+                                    <p class="text-xs font-semibold text-slate-800">${item.reporter}</p>
+                                    <p class="text-[10px] text-slate-500 font-mono">${item.phone}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">สถานที่เกิดเหตุ</p>
+                                    <p class="text-xs font-semibold text-indigo-900">${item.building}</p>
+                                    <p class="text-[10px] text-slate-500">${item.floor}, ${item.room}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">ระดับความสำคัญ</p>
+                                    <p class="text-xs font-semibold text-slate-800">${item.urgency}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">ผู้รับผิดชอบงาน</p>
+                                    <p class="text-xs font-semibold text-slate-800">${item.assignedTechnician || 'กำลังรอวิเคราะห์ช่าง'}</p>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="space-y-1">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase">คำอธิบายและอาการชำรุด</h4>
+                                <p class="text-sm text-slate-700 leading-relaxed bg-white p-3 rounded-lg border border-slate-100">
+                                    ${item.description || 'ไม่มีรายละเอียดเพิ่มเติม'}
+                                </p>
+                            </div>
+
+                            <!-- Photo Attachment -->
+                            <div class="space-y-1">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase">รูปภาพหลักฐาน</h4>
+                                ${photoElementHtml}
+                            </div>
+                        </div>
+
+                        <!-- Side Timeline and Cost Tracking -->
+                        <div class="md:col-span-1 space-y-4">
+                            <!-- Cost Tracker -->
+                            ${item.cost ? `
+                            <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4 text-center">
+                                <p class="text-[10px] text-emerald-700 font-bold uppercase">ค่าใช้จ่ายอุปกรณ์/การซ่อม</p>
+                                <p class="text-xl font-black text-emerald-600">${item.cost.toLocaleString('th-TH')} บาท</p>
+                            </div>` : ''}
+
+                            <!-- Timeline Track -->
+                            <div class="bg-slate-50/50 border border-slate-100 rounded-xl p-4">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase mb-4 flex items-center gap-1">
+                                    <i data-lucide="history" class="w-3.5 h-3.5"></i> บันทึกประวัติ (Timeline)
+                                </h4>
+                                <div class="space-y-1">
+                                    ${logsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // 4. Admin Portal Logic
+        function renderAdminView() {
+            const queueContainer = document.getElementById('admin-queue');
+            queueContainer.innerHTML = '';
+
+            // Sort based on Urgency Priority and Recency
+            const priorityMap = { 'เร่งด่วนที่สุด': 4, 'สูง': 3, 'ปานกลาง': 2, 'ต่ำ': 1 };
+            const sorted = [...appState.requests].sort((a, b) => {
+                const priorityDiff = (priorityMap[b.urgency] || 0) - (priorityMap[a.urgency] || 0);
+                if (priorityDiff !== 0) return priorityDiff;
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+
+            if (sorted.length === 0) {
+                queueContainer.innerHTML = `
+                    <div class="text-center py-20 text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                        <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                        <p class="text-xs font-bold">ไม่มีรายการคำขอซ่อมแซมในคิว</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            sorted.forEach(item => {
+                const isSelected = item.id === appState.currentAdminId;
+                const activeBorder = isSelected ? 'border-rose-600 bg-rose-50/10' : 'border-slate-100 hover:border-slate-300';
+                
+                let urgencyColor = '';
+                if (item.urgency === 'เร่งด่วนที่สุด') urgencyColor = 'bg-rose-500 text-white';
+                else if (item.urgency === 'สูง') urgencyColor = 'bg-amber-400 text-slate-900';
+                else if (item.urgency === 'ปานกลาง') urgencyColor = 'bg-indigo-100 text-indigo-800';
+                else urgencyColor = 'bg-slate-100 text-slate-700';
+
+                let statusBadge = '';
+                if (item.status === 'รอดำเนินการ') statusBadge = '● ค้างซ่อม';
+                else if (item.status === 'กำลังดำเนินการ') statusBadge = '● กำลังทำ';
+                else if (item.status === 'เสร็จสิ้น') statusBadge = '✓ เสร็จสิ้น';
+                else statusBadge = '✕ ยกเลิก';
+
+                queueContainer.innerHTML += `
+                    <div onclick="selectAdminItem('${item.id}')" class="p-4 bg-white border-2 ${activeBorder} rounded-xl cursor-pointer transition-all duration-200 shadow-sm relative text-left">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-[10px] font-bold text-slate-400 font-mono">${item.id}</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md ${urgencyColor}">${item.urgency}</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 line-clamp-1 mb-1">${item.title}</h4>
+                        <p class="text-xs text-slate-500 mb-2 truncate">${item.building} [${item.room}]</p>
+                        <div class="flex justify-between items-center text-[10px] text-slate-400">
+                            <span>ผู้แจ้ง: ${item.reporter.substring(0, 15)}...</span>
+                            <span class="font-bold text-indigo-700">${statusBadge}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function selectAdminItem(id) {
+            appState.currentAdminId = id;
+            renderAdminView();
+
+            const workstation = document.getElementById('admin-workstation');
+            const item = appState.requests.find(r => r.id === id);
+
+            if (!item) {
+                workstation.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-24 text-slate-400 space-y-3 h-full">
+                        <div class="bg-slate-50 p-4 rounded-full">
+                            <i data-lucide="terminal" class="w-10 h-10 text-slate-400"></i>
+                        </div>
+                        <p class="font-bold text-slate-600">โปรดเลือกใบแจ้งซ่อมด้านซ้ายเพื่อจัดการ</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            // Create status selection dropdown html
+            const statusOptions = ['รอดำเนินการ', 'กำลังดำเนินการ', 'เสร็จสิ้น', 'ยกเลิก'].map(status => {
+                const selected = item.status === status ? 'selected' : '';
+                return `<option value="${status}" ${selected}>${status}</option>`;
+            }).join('');
+
+            // Predefined University Technicians List Options
+            const techList = [
+                "ช่างประเสริฐ รุ่งเรือง (ไฟฟ้า)",
+                "ช่างมานพ ใจดี (ประปา)",
+                "ช่างวิชัย แสนดี (แอร์)",
+                "ช่างสมยศ ปานพิม (โครงสร้าง)",
+                "ผู้รับเหมาภายนอก (Outsource)"
+            ];
+            const techOptions = techList.map(techName => {
+                const selected = item.assignedTechnician === techName ? 'selected' : '';
+                return `<option value="${techName}" ${selected}>${techName}</option>`;
+            }).join('');
+
+            // Photo view inside admin panel (Supports Base64 uploads)
+            let adminPhotoHtml = '';
+            if (item.photo && item.photo.startsWith('data:image/')) {
+                adminPhotoHtml = `
+                    <div class="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 mt-2 max-h-48 flex justify-center items-center">
+                        <img src="${item.photo}" class="w-full object-cover">
+                    </div>
+                `;
+            } else {
+                adminPhotoHtml = `
+                    <div class="bg-slate-100 rounded-xl p-3 text-center border border-slate-200 mt-2 text-xs font-semibold text-slate-500 flex items-center justify-center gap-1.5">
+                        <i data-lucide="image-off" class="w-4 h-4"></i> ภาพอ้างอิงจำลอง: ${item.photo}
+                    </div>
+                `;
+            }
+
+            workstation.innerHTML = `
+                <div class="space-y-6 text-left">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded font-bold">${item.id}</span>
+                            <h3 class="text-lg font-bold text-slate-900 mt-1">${item.title}</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="printJobCard('${item.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1">
+                                <i data-lucide="printer" class="w-3.5 h-3.5"></i> พิมพ์ใบสั่งงาน
+                            </button>
+                            <span class="text-xs font-bold text-slate-500 py-1.5">${new Date(item.createdAt).toLocaleString('th-TH')}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl text-xs text-slate-700">
+                        <div><strong class="text-slate-400">ผู้รายงาน:</strong> ${item.reporter} (${item.phone})</div>
+                        <div><strong class="text-slate-400">ตึก/อาคาร:</strong> ${item.building} (ชั้น: ${item.floor}, ห้อง: ${item.room})</div>
+                        <div><strong class="text-slate-400">ความเร่งด่วน:</strong> <span class="font-bold">${item.urgency}</span></div>
+                        <div><strong class="text-slate-400">ประเภทระบบ:</strong> ${item.category}</div>
+                    </div>
+
+                    <!-- Action control form -->
+                    <form onsubmit="handleAdminAction(event, '${item.id}')" class="space-y-4 bg-white border border-slate-100 rounded-xl p-4">
+                        <h4 class="font-bold text-sm text-slate-900 border-b border-slate-100 pb-2">แบบฟอร์มบันทึกการทำงานของช่าง</h4>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500">อัปเดตสถานะใบงาน</label>
+                                <select id="admin-status" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white" required>
+                                    ${statusOptions}
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500">มอบหมายช่างเทคนิคผู้ดูแล</label>
+                                <select id="admin-technician" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white">
+                                    <option value="">-- เลือกช่างผู้รับผิดชอบ --</option>
+                                    ${techOptions}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500">ค่าซ่อมแซม/ค่าอะไหล่ (บาท)</label>
+                                <input type="number" id="admin-cost" value="${item.cost || ''}" placeholder="ไม่มีค่าใช้จ่ายหากปล่อยว่าง" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500">หมายเหตุหลังการซ่อมบำรุง</label>
+                                <input type="text" id="admin-notes" value="${item.notes || ''}" placeholder="ระบุผลสำเร็จของการซ่อมแซม..." class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200">
+                            </div>
+                        </div>
+
+                        <div class="pt-3 flex justify-end space-x-2">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 text-xs rounded-xl shadow transition flex items-center gap-1.5">
+                                <i data-lucide="save" class="w-3.5 h-3.5"></i> บันทึกการอัปเดตข้อมูล
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Logs and Photo View side-by-side -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-xs text-slate-500 uppercase">บันทึกขั้นตอนไทม์ไลน์</h4>
+                            <div class="bg-slate-50/50 p-4 rounded-xl text-xs space-y-2 max-h-48 overflow-y-auto" id="admin-history-logs">
+                                ${item.logs.map(log => `
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-[9px] text-slate-400 font-mono mt-0.5">${new Date(log.time).toLocaleTimeString('th-TH')}</span>
+                                        <span class="text-slate-800">${log.message}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-xs text-slate-500 uppercase">หลักฐานรูปภาพ</h4>
+                            ${adminPhotoHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Job printable template modal trigger
+        function printJobCard(id) {
+            const item = appState.requests.find(r => r.id === id);
+            if (!item) return;
+
+            const modal = document.getElementById('print-modal');
+            const content = document.getElementById('print-modal-content');
+
+            content.innerHTML = `
+                <div class="border-2 border-dashed border-slate-300 p-6 rounded-2xl space-y-4 font-mono text-xs text-slate-800">
+                    <div class="text-center border-b border-slate-200 pb-3">
+                        <h2 class="font-black text-sm uppercase">UniFix WORK ORDER CARD</h2>
+                        <p class="text-[10px] text-slate-400 mt-0.5">กองอาคารสถานที่ มหาวิทยาลัยเทคโนโลยีและนวัตกรรม</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <div><strong>JOB ID:</strong> ${item.id}</div>
+                        <div><strong>DATE:</strong> ${new Date(item.createdAt).toLocaleDateString('th-TH')}</div>
+                        <div class="col-span-2"><strong>TITLE:</strong> ${item.title}</div>
+                        <div><strong>SYSTEM TYPE:</strong> ${item.category}</div>
+                        <div><strong>URGENCY:</strong> ${item.urgency}</div>
+                        <div class="col-span-2"><strong>BUILDING:</strong> ${item.building}</div>
+                        <div class="col-span-2"><strong>LOCATION:</strong> ${item.floor}, ${item.room}</div>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-3">
+                        <strong>REPORTER INFO:</strong><br>
+                        ${item.reporter} (Tel: ${item.phone})
+                    </div>
+
+                    <div class="border-t border-b border-slate-200 py-3">
+                        <strong>PROBLEM DETAILS:</strong><br>
+                        <p class="text-slate-600 mt-1">${item.description || 'ไม่มีรายละเอียดเพิ่มเติม'}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <strong>ASSIGNED TO:</strong><br>
+                            <span class="text-indigo-600 underline">${item.assignedTechnician || '_________________'}</span>
+                        </div>
+                        <div>
+                            <strong>EST. BUDGET (THB):</strong><br>
+                            <span>${item.cost ? item.cost + ' บาท' : '_________________'}</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 flex justify-between items-end">
+                        <div class="text-center w-5/12 border-t border-slate-300 pt-1 text-[9px] text-slate-400">
+                            ลงชื่อ ช่างเทคนิคผู้ปฏิบัติงาน
+                        </div>
+                        <div class="text-center w-5/12 border-t border-slate-300 pt-1 text-[9px] text-slate-400">
+                            ลงชื่อ เจ้าหน้าที่อนุมัติปิดเคส
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        // Close printed preview modal
+        function closePrintModal() {
+            document.getElementById('print-modal').classList.add('hidden');
+        }
+
+        // Trigger native print process on layout
+        function triggerActualPrint() {
+            window.print();
+        }
+
+        function handleAdminAction(e, id) {
+            e.preventDefault();
+
+            const itemIndex = appState.requests.findIndex(r => r.id === id);
+            if (itemIndex === -1) return;
+
+            const updatedStatus = document.getElementById('admin-status').value;
+            const updatedTechnician = document.getElementById('admin-technician').value;
+            const updatedCost = document.getElementById('admin-cost').value;
+            const updatedNotes = document.getElementById('admin-notes').value;
+
+            const originalStatus = appState.requests[itemIndex].status;
+            
+            // Apply updates
+            appState.requests[itemIndex].status = updatedStatus;
+            appState.requests[itemIndex].assignedTechnician = updatedTechnician;
+            appState.requests[itemIndex].cost = updatedCost ? parseInt(updatedCost) : null;
+            appState.requests[itemIndex].notes = updatedNotes;
+
+            // Generate Audit log if changes occurred
+            const nowStr = new Date().toISOString();
+            
+            if (originalStatus !== updatedStatus) {
+                appState.requests[itemIndex].logs.push({
+                    time: nowStr,
+                    message: `เจ้าหน้าที่ปรับเปลี่ยนสถานะเคสชำรุดเป็น '${updatedStatus}'`,
+                    type: "status_update"
+                });
+            }
+
+            if (updatedTechnician && appState.requests[itemIndex].logs.filter(l => l.message.includes("มอบหมายให้ ช่าง")).length === 0) {
+                appState.requests[itemIndex].logs.push({
+                    time: nowStr,
+                    message: `มอบหมายให้ ${updatedTechnician} เข้าดำเนินการจัดการอุปกรณ์`,
+                    type: "technician_update"
+                });
+            }
+
+            if (updatedStatus === 'เสร็จสิ้น') {
+                // Ensure there is a completion log
+                if (appState.requests[itemIndex].logs.filter(l => l.message.includes("อนุมัติปิดเคสเสร็จสิ้น")).length === 0) {
+                    appState.requests[itemIndex].logs.push({
+                        time: nowStr,
+                        message: `ช่างเทคนิคได้ทำการตรวจซ่อมบำรุงและปิดเคสเป็นที่เรียบร้อย. หมายเหตุ: ${updatedNotes || 'เสร็จสิ้นโดยเรียบร้อย'}`,
+                        type: "close_ticket"
+                    });
+                }
+            }
+
+            saveToLocalStorage();
+            refreshAllViews();
+
+            showToast("อัปเดตใบงานแล้ว", `บันทึกข้อมูลใบงานซ่อม ${id} เรียบร้อยแล้ว`, "success");
+            selectAdminItem(id);
+        }
+
+    </script>
+</body>
+</html>

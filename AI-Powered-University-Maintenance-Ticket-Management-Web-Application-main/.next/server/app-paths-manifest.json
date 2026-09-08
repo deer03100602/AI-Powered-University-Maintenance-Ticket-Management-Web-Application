@@ -1,0 +1,22 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/settings/page": "app/admin/settings/page.js",
+  "/api/issue-types/[id]/route": "app/api/issue-types/[id]/route.js",
+  "/api/tickets/[id]/route": "app/api/tickets/[id]/route.js",
+  "/api/upload/route": "app/api/upload/route.js",
+  "/create/page": "app/create/page.js",
+  "/my-tickets/page": "app/my-tickets/page.js",
+  "/page": "app/page.js",
+  "/issue-types/page": "app/issue-types/page.js",
+  "/login/page": "app/login/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/signup/page": "app/signup/page.js",
+  "/tickets/[id]/page": "app/tickets/[id]/page.js",
+  "/tickets/page": "app/tickets/page.js",
+  "/api/issue-types/route": "app/api/issue-types/route.js",
+  "/api/stats/route": "app/api/stats/route.js",
+  "/api/settings/route": "app/api/settings/route.js",
+  "/api/tickets/route": "app/api/tickets/route.js",
+  "/api/auth/signup/route": "app/api/auth/signup/route.js"
+}
