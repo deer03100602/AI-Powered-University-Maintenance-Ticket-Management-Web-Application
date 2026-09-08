@@ -8,7 +8,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
-import { PlusCircle, Info, User, Send, Loader, UploadCloud, FileText, X } from 'lucide-react';
+import { PlusCircle, Info, User, Send, Loader, UploadCloud, FileText, X, Image as ImageIcon, Eye, ExternalLink, Download } from 'lucide-react';
+
+const formatFileSize = (bytes) => {
+    if (!bytes || bytes === 0) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const checkIsImage = (file) => {
+    if (!file) return false;
+    if (file.type && file.type.startsWith('image/')) return true;
+    const name = file.name || file.url || '';
+    return /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i.test(name);
+};
 
 export default function CreateTicketPage() {
     const router = useRouter();
@@ -20,6 +34,7 @@ export default function CreateTicketPage() {
     const [attachments, setAttachments] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [previewFile, setPreviewFile] = useState(null);
 
     useEffect(() => {
         async function fetchIssueTypes() {
@@ -67,6 +82,9 @@ export default function CreateTicketPage() {
                 continue;
             }
 
+            // Create local object URL for immediate client-side preview
+            const localPreviewUrl = file.type?.startsWith('image/') ? URL.createObjectURL(file) : null;
+
             try {
                 const formData = new FormData();
                 formData.append('file', file);
@@ -82,6 +100,7 @@ export default function CreateTicketPage() {
                         name: file.name,
                         size: file.size,
                         url: data.url,
+                        localUrl: localPreviewUrl,
                         type: file.type
                     });
                 } else {
@@ -117,6 +136,13 @@ export default function CreateTicketPage() {
     };
 
     const removeAttachment = (index) => {
+        const removed = attachments[index];
+        if (removed?.localUrl) {
+            try { URL.revokeObjectURL(removed.localUrl); } catch (e) {}
+        }
+        if (previewFile && (previewFile.name === removed?.name || previewFile.url === removed?.url)) {
+            setPreviewFile(null);
+        }
         setAttachments(attachments.filter((_, i) => i !== index));
     };
 
@@ -335,33 +361,77 @@ export default function CreateTicketPage() {
 
                         {/* Attachments List */}
                         {attachments.length > 0 && (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
-                                {attachments.map((att, idx) => (
-                                    <div 
-                                        key={idx} 
-                                        className="ticket-attachment-chip"
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.4rem',
-                                            borderRadius: 8,
-                                            padding: '4px 10px',
-                                            fontSize: '0.8rem'
-                                        }}
-                                    >
-                                        <FileText style={{ width: 14, height: 14, color: '#818cf8' }} />
-                                        <span style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {att.name}
-                                        </span>
-                                        <button 
-                                            type="button" 
-                                            onClick={(e) => { e.stopPropagation(); removeAttachment(idx); }}
-                                            style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', marginTop: '0.85rem' }}>
+                                {attachments.map((att, idx) => {
+                                    const isImg = checkIsImage(att);
+                                    const viewUrl = att.url || att.localUrl;
+                                    return (
+                                        <div 
+                                            key={idx} 
+                                            className="ticket-attachment-chip"
+                                            onClick={() => setPreviewFile({ ...att, isImage: isImg, viewUrl })}
+                                            title="คลิกเพื่อเปิดดูรูป/ไฟล์นี้"
+                                            style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '0.5rem',
+                                                borderRadius: 10,
+                                                padding: '6px 12px',
+                                                fontSize: '0.85rem',
+                                                cursor: 'pointer',
+                                                userSelect: 'none',
+                                                transition: 'all 0.2s ease',
+                                                boxShadow: '0 2px 5px rgba(0,0,0,0.06)'
+                                            }}
                                         >
-                                            <X style={{ width: 14, height: 14 }} />
-                                        </button>
-                                    </div>
-                                ))}
+                                            {isImg ? (
+                                                <div style={{ width: 26, height: 26, borderRadius: 6, overflow: 'hidden', flexShrink: 0, background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    {viewUrl ? (
+                                                        <img 
+                                                            src={viewUrl} 
+                                                            alt={att.name}
+                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                        />
+                                                    ) : (
+                                                        <ImageIcon style={{ width: 15, height: 15, color: '#818cf8' }} />
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <FileText style={{ width: 16, height: 16, color: '#818cf8', flexShrink: 0 }} />
+                                            )}
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                                                <span style={{ maxWidth: 170, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
+                                                    {att.name}
+                                                </span>
+                                                {att.size ? (
+                                                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                                                        {formatFileSize(att.size)}
+                                                    </span>
+                                                ) : null}
+                                            </div>
+
+                                            <div 
+                                                title="ดูตัวอย่าง"
+                                                style={{ display: 'flex', alignItems: 'center', color: '#818cf8', padding: '2px 4px', borderRadius: 4, marginLeft: 2 }}
+                                            >
+                                                <Eye style={{ width: 14, height: 14 }} />
+                                            </div>
+
+                                            <button 
+                                                type="button" 
+                                                title="ลบไฟล์นี้"
+                                                onClick={(e) => { e.stopPropagation(); removeAttachment(idx); }}
+                                                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 2, display: 'flex', alignItems: 'center', borderRadius: 4, transition: 'color 0.15s, background 0.15s' }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)'; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'none'; }}
+                                            >
+                                                <X style={{ width: 14, height: 14 }} />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
@@ -564,6 +634,183 @@ export default function CreateTicketPage() {
                 </div>
 
             </form>
+
+            {/* File & Image Preview Lightbox Modal */}
+            {previewFile && (
+                <div 
+                    onClick={() => setPreviewFile(null)}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.82)',
+                        backdropFilter: 'blur(8px)',
+                        zIndex: 99999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '1.5rem'
+                    }}
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            position: 'relative',
+                            maxWidth: '92vw',
+                            maxHeight: '90vh',
+                            backgroundColor: 'var(--bg-secondary)',
+                            border: '1px solid var(--border-card)',
+                            borderRadius: 16,
+                            overflow: 'hidden',
+                            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5)',
+                            display: 'flex',
+                            flexDirection: 'column'
+                        }}
+                    >
+                        {/* Header */}
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '0.85rem 1.25rem',
+                            borderBottom: '1px solid var(--border-card)',
+                            background: 'rgba(0, 0, 0, 0.15)',
+                            gap: '1rem'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
+                                {previewFile.isImage ? (
+                                    <ImageIcon style={{ width: 18, height: 18, color: '#818cf8', flexShrink: 0 }} />
+                                ) : (
+                                    <FileText style={{ width: 18, height: 18, color: '#818cf8', flexShrink: 0 }} />
+                                )}
+                                <div style={{ minWidth: 0 }}>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-primary)', maxWidth: '50vw', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {previewFile.name}
+                                    </div>
+                                    {previewFile.size ? (
+                                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                                            {formatFileSize(previewFile.size)}
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                                {previewFile.viewUrl && (
+                                    <a
+                                        href={previewFile.viewUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-ghost btn-sm"
+                                        title="เปิดดูในแท็บใหม่"
+                                        style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                                    >
+                                        <ExternalLink style={{ width: 14, height: 14 }} />
+                                        <span>เปิดเต็มจอ</span>
+                                    </a>
+                                )}
+                                {previewFile.viewUrl && (
+                                    <a
+                                        href={previewFile.viewUrl}
+                                        download={previewFile.name}
+                                        className="btn btn-ghost btn-sm"
+                                        title="ดาวน์โหลดไฟล์"
+                                        style={{ padding: '0.35rem 0.65rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                                    >
+                                        <Download style={{ width: 14, height: 14 }} />
+                                        <span>ดาวน์โหลด</span>
+                                    </a>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => setPreviewFile(null)}
+                                    style={{
+                                        background: 'rgba(239, 68, 68, 0.15)',
+                                        color: '#ef4444',
+                                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                                        borderRadius: 8,
+                                        width: 32,
+                                        height: 32,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    title="ปิด"
+                                >
+                                    <X style={{ width: 16, height: 16 }} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div style={{
+                            padding: '1.25rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            overflow: 'auto',
+                            maxHeight: 'calc(85vh - 70px)',
+                            background: previewFile.isImage ? 'rgba(0, 0, 0, 0.3)' : 'transparent'
+                        }}>
+                            {previewFile.isImage ? (
+                                <img 
+                                    src={previewFile.viewUrl} 
+                                    alt={previewFile.name}
+                                    style={{
+                                        maxWidth: '100%',
+                                        maxHeight: 'calc(80vh - 80px)',
+                                        objectFit: 'contain',
+                                        borderRadius: 8,
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.35)'
+                                    }}
+                                />
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '2.5rem 2rem' }}>
+                                    <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
+                                        <FileText style={{ width: 32, height: 32 }} />
+                                    </div>
+                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                                        {previewFile.name}
+                                    </h4>
+                                    <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '1.5rem', maxWidth: 360, margin: '0 auto 1.5rem' }}>
+                                        {previewFile.name.endsWith('.pdf') ? 'เอกสาร PDF' : 'ไฟล์เอกสารแนบ'} พร้อมเปิดดูหรือดาวน์โหลด
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                        {previewFile.viewUrl && (
+                                            <a 
+                                                href={previewFile.viewUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="btn btn-primary"
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+                                            >
+                                                <ExternalLink style={{ width: 16, height: 16 }} />
+                                                เปิดดูไฟล์ในแท็บใหม่
+                                            </a>
+                                        )}
+                                        {previewFile.viewUrl && (
+                                            <a 
+                                                href={previewFile.viewUrl} 
+                                                download={previewFile.name}
+                                                className="btn btn-ghost"
+                                                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+                                            >
+                                                <Download style={{ width: 16, height: 16 }} />
+                                                ดาวน์โหลดไฟล์
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
