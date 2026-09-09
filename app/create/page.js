@@ -8,7 +8,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
-import { PlusCircle, Info, User, Send, Loader, UploadCloud, FileText, X } from 'lucide-react';
 import { PlusCircle, Info, User, Send, Loader, UploadCloud, FileText, X, Image as ImageIcon, Eye, ExternalLink, Download } from 'lucide-react';
 
 const formatFileSize = (bytes) => {
@@ -362,28 +361,6 @@ export default function CreateTicketPage() {
 
                         {/* Attachments List */}
                         {attachments.length > 0 && (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
-                                {attachments.map((att, idx) => (
-                                    <div 
-                                        key={idx} 
-                                        className="ticket-attachment-chip"
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.4rem',
-                                            borderRadius: 8,
-                                            padding: '4px 10px',
-                                            fontSize: '0.8rem'
-                                        }}
-                                    >
-                                        <FileText style={{ width: 14, height: 14, color: '#818cf8' }} />
-                                        <span style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {att.name}
-                                        </span>
-                                        <button 
-                                            type="button" 
-                                            onClick={(e) => { e.stopPropagation(); removeAttachment(idx); }}
-                                            style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', marginTop: '0.85rem' }}>
                                 {attachments.map((att, idx) => {
                                     const isImg = checkIsImage(att);
@@ -407,10 +384,6 @@ export default function CreateTicketPage() {
                                                 boxShadow: '0 2px 5px rgba(0,0,0,0.06)'
                                             }}
                                         >
-                                            <X style={{ width: 14, height: 14 }} />
-                                        </button>
-                                    </div>
-                                ))}
                                             {isImg ? (
                                                 <div style={{ width: 26, height: 26, borderRadius: 6, overflow: 'hidden', flexShrink: 0, background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                     {viewUrl ? (
