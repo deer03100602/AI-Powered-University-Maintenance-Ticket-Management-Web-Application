@@ -91,32 +91,6 @@ export default function Navbar() {
                             {theme === 'dark' ? <Sun style={{ width: 17, height: 17 }} /> : <Moon style={{ width: 17, height: 17 }} />}
                         </button>
 
-                        {/* Role Switcher */}
-                        {isRealAuth ? (
-                            <div className="user-role-badge" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)', flexShrink: 0 }}>
-                                ใช้บัญชีจริง
-                            </div>
-                        ) : (
-                            <div className="top-role-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
-                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>กลุ่ม:</span>
-                                <select
-                                    className="top-role-select"
-                                    value={MOCK_PROFILES?.findIndex(p => p.group === user?.group)}
-                                    onChange={(e) => {
-                                        const idx = parseInt(e.target.value, 10);
-                                        if (idx >= 0 && idx < MOCK_PROFILES.length) {
-                                            switchMockProfile(idx);
-                                        }
-                                    }}
-                                >
-                                    {MOCK_PROFILES?.map((p, idx) => (
-                                        <option key={idx} value={idx}>
-                                            {p.group}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
 
                         {/* User Profile Pill */}
                         <div className="top-user-profile">
